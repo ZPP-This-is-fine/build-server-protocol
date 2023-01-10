@@ -1368,9 +1368,10 @@ object PythonOptionsResult {
     JsonCodecMaker.makeWithRequiredCollectionFields
 }
 
-
-final case class RustBuildTarget(edition: Option[String],
-                                 compiler: Option[Uri])
+final case class RustBuildTarget(
+    edition: Option[String],
+    compiler: Option[Uri]
+)
 
 object RustBuildTarget {
   implicit val codec: JsonValueCodec[RustBuildTarget] =
@@ -1378,26 +1379,30 @@ object RustBuildTarget {
 }
 
 final case class RustDep(
-  pkg: String,
-  name: String,
-  dep_kinds: List[RustDepKindInfo]
-                        )
+    pkg: String,
+    name: String,
+    dep_kinds: List[RustDepKindInfo]
+)
 
 object RustDep {
   implicit val codec: JsonValueCodec[RustDep] =
     JsonCodecMaker.makeWithRequiredCollectionFields
 }
 
-final case class RustDepKindInfo(kind: String,
-                                  target: String)
+final case class RustDepKindInfo(
+    kind: String,
+    target: String
+)
 
 object RustDepKindInfo {
   implicit val codec: JsonValueCodec[RustDepKindInfo] =
     JsonCodecMaker.makeWithRequiredCollectionFields
 }
 
-final case class RustFeature(name: String,
-                             deps: List[String])
+final case class RustFeature(
+    name: String,
+    deps: List[String]
+)
 
 object RustFeature {
   implicit val codec: JsonValueCodec[RustFeature] =
@@ -1405,27 +1410,30 @@ object RustFeature {
 }
 
 final case class RustMetadataResult(
-                             packages: List[RustPackage],
-                             dependencies: List[RustResolveNode],
-                             version: Integer,
-                             workspaceMembers: List[String],
-                             workspaceRoot: String
-                           )
+    packages: List[RustPackage],
+    dependencies: List[RustResolveNode],
+    version: Integer,
+    workspaceMembers: List[String],
+    workspaceRoot: String
+)
 
 object RustMetadataResult {
   implicit val codec: JsonValueCodec[RustMetadataResult] =
     JsonCodecMaker.makeWithRequiredCollectionFields
 }
 
-
-final case class RustOptionsParams(targets: List[BuildTargetIdentifier])
+final case class RustOptionsParams(
+    targets: List[BuildTargetIdentifier]
+)
 
 object RustOptionsParams {
   implicit val codec: JsonValueCodec[RustOptionsParams] =
     JsonCodecMaker.makeWithRequiredCollectionFields
 }
 
-final case class RustMetadataParams(targets: List[BuildTargetIdentifier])
+final case class RustMetadataParams(
+    targets: List[BuildTargetIdentifier]
+)
 
 object RustMetadataParams {
   implicit val codec: JsonValueCodec[RustMetadataParams] =
@@ -1433,8 +1441,8 @@ object RustMetadataParams {
 }
 
 final case class RustOptionsItem(
-  target: BuildTargetIdentifier,
-  compilerOptions: List[String]
+    target: BuildTargetIdentifier,
+    compilerOptions: List[String]
 )
 
 object RustOptionsItem {
@@ -1450,20 +1458,21 @@ object RustOptionsResult {
 }
 
 final case class RustPackage(
-  name: String,
-  version: String,
-  authors: List[String],
-  description: String,
-  repository: String,
-  license: String,
-  license_file: String,
-  source: String,
-  id: String,
-  manifest_path: String,
-  targets: List[RustTarget],
-  edition: String,
-  features: Map[String, List[String]],
-  dependencies: List[RustRawDependency])
+    name: String,
+    version: String,
+    authors: List[String],
+    description: String,
+    repository: String,
+    license: String,
+    license_file: String,
+    source: String,
+    id: String,
+    manifest_path: String,
+    targets: List[RustTarget],
+    edition: String,
+    features: List[RustFeature],
+    dependencies: List[RustRawDependency]
+)
 
 object RustPackage {
   implicit val codec: JsonValueCodec[RustPackage] =
@@ -1471,13 +1480,13 @@ object RustPackage {
 }
 
 final case class RustRawDependency(
-  name: String,
-  rename: String,
-  kind: String,
-  target: String,
-  optional: Boolean,
-  uses_default_features: Boolean,
-  features: String
+    name: String,
+    rename: String,
+    kind: String,
+    target: String,
+    optional: Boolean,
+    uses_default_features: Boolean,
+    features: String
 )
 
 object RustRawDependency {
@@ -1486,10 +1495,10 @@ object RustRawDependency {
 }
 
 final case class RustResolveNode(
-  id: String,
-  dependencies: List[String],
-  deps: List[RustDep],
-  features: List[String]
+    id: String,
+    dependencies: List[String],
+    deps: List[RustDep],
+    features: List[String]
 )
 
 object RustResolveNode {
@@ -1498,13 +1507,13 @@ object RustResolveNode {
 }
 
 final case class RustTarget(
-  kind: List[String],
-  name: String,
-  src_path: String,
-  crate_types: List[String],
-  edition: String,
-  doctest: Boolean,
-  required_features: List[String]
+    kind: List[String],
+    name: String,
+    src_path: String,
+    crate_types: List[String],
+    edition: String,
+    doctest: Boolean,
+    required_features: List[String]
 )
 
 object RustTarget {
