@@ -1486,7 +1486,7 @@ final case class RustRawDependency(
     target: String,
     optional: Boolean,
     uses_default_features: Boolean,
-    features: String
+    features: List[String]
 )
 
 object RustRawDependency {
