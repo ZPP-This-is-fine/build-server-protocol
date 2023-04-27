@@ -29,7 +29,6 @@ structure RustWorkspaceParams {
     targets: BuildTargetIdentifiers
 }
 
-// TODO: fill
 structure RustWorkspaceResult {
     @required
     packages: RustPackages
