@@ -1,3 +1,199 @@
 $version: "2"
 
 namespace bsp.rust
+
+use bsp#BuildTargetData
+use bsp#BuildTargetIdentifiers
+use jsonrpc#data
+use jsonrpc#jsonRPC
+use jsonrpc#jsonRequest
+
+// TODO: check correctness. Refer to original Rust extension implementation in .xtend/java/scala.
+
+@jsonRPC
+service RustBuildServer {
+    operations: [
+        RustWorkspace
+        RustToolchain
+    ]
+}
+
+@jsonRequest("buildTarget/rustWorkspace")
+operation RustWorkspace {
+    input: RustWorkspaceParams
+    output: RustWorkspaceResult
+}
+
+structure RustWorkspaceParams {
+    @required
+    targets: BuildTargetIdentifiers
+}
+
+// TODO: fill
+structure RustWorkspaceResult {
+    @required
+    packages: RustPackages
+    @required
+    rawDependencies: RustRawDependencies
+    @required
+    dependencies: RustDependencies
+}
+
+list RustPackages {
+    member: RustPackage
+}
+
+structure RustPackage {
+    @required
+    id: String
+    version: String
+    origin: String
+    edition: String
+    source: String
+    @required
+    targets: RustTargets
+    @required
+    allTargets: RustTargets
+    @required
+    features: RustFeatures
+    @required
+    enabledFeatures: RustStringFeatures
+    cfgOptions: RustCfgOptions
+    @required
+    env: RustEnvDatas
+    outDirUrl: String
+    procMacroArtifact: RustProcMacroArtifact
+}
+
+list RustTargets {
+    member: RustTarget
+}
+
+@data(kind: "rust", extends: BuildTargetData)
+structure RustTarget {
+    @required
+    name: String
+    @required
+    crateRootUrl: String
+    @required
+    packageRootUrl: String
+    @required
+    kind: String
+    edition: String
+    doctest: Boolean
+    requiredFeatures: RustStringFeatures
+}
+
+list RustFeatures {
+    member: RustFeature
+}
+
+structure RustFeature {
+    @required
+    name: String
+    deps: Strings
+}
+
+list Strings {
+    member: String
+}
+
+list RustStringFeatures {
+    member: String
+}
+
+structure RustCfgOptions {
+    keyValueOptions: KeyValueOptions
+    nameOptions: Strings
+}
+
+map KeyValueOptions {
+    key: String
+    value: Strings
+}
+
+map RustEnvDatas {
+    key: String
+    value: String
+}
+
+structure RustProcMacroArtifact {
+    path: String
+    // TODO: we don't need hash. It is calculated by IntelliJ-Rust
+}
+
+map RustRawDependencies {
+    key: String
+    value: RustRawDependency
+}
+
+structure RustRawDependency {
+    @required
+    name: String
+    rename: String
+    kind: String
+    target: String
+    optional: Boolean
+    uses_default_features: Boolean
+    @required
+    features: RustStringFeatures
+}
+
+map RustDependencies {
+    key: String
+    value: RustDependency
+}
+
+structure RustDependency {
+    @required
+    target: String
+    name: String
+    depKinds: DepKinds
+}
+
+list DepKinds {
+    member: DepKind
+}
+
+structure DepKind {
+    @required
+    kind: String
+    target: String
+}
+
+@jsonRequest("buildTarget/rustToolchain")
+operation RustToolchain {
+    input: RustToolchainParams
+    output: RustToolchainResult
+}
+
+structure RustToolchainParams {
+    @required
+    targets: BuildTargetIdentifiers
+}
+
+structure RustToolchainResult {
+    @required
+    items: RustToolchainsItems
+}
+
+list RustToolchainsItems {
+    member: RustToolchainsItem
+}
+
+structure RustToolchainsItems {
+    rustStdLib: RustStdLib
+    @required
+    cargoBinPath: String
+    @required
+    procMacroSrvPath: String
+}
+
+structure RustStdLib {
+    @required
+    rustcSysroot: String
+    @required
+    rustcSrcSysroot: String
+    @required
+    rustcVersion: String
+}
