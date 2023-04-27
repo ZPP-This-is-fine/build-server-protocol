@@ -181,6 +181,34 @@ trait Bsp4jArbitrary {
   implicit val arbPythonOptionsResult: Arbitrary[PythonOptionsResult] = Arbitrary(
     genPythonOptionsResult
   )
+  implicit val arbRustRawMapper: Arbitrary[RustRawMapper] = Arbitrary(genRustRawMapper)
+  implicit val arbRustDepMapper: Arbitrary[RustDepMapper] = Arbitrary(genRustDepMapper)
+  implicit val arbRustDepKindInfo: Arbitrary[RustDepKindInfo] = Arbitrary(genRustDepKindInfo)
+  implicit val arbRustEnvData: Arbitrary[RustEnvData] = Arbitrary(
+    genRustEnvData
+  )
+  implicit val arbRustKeyValueMapper: Arbitrary[RustKeyValueMapper] = Arbitrary(
+    genRustKeyValueMapper
+  )
+  implicit val arbRustCfgOptions: Arbitrary[RustCfgOptions] = Arbitrary(
+    genRustCfgOptions
+  )
+  implicit val arbRustProcMacroArtifact: Arbitrary[RustProcMacroArtifact] = Arbitrary(
+    genRustProcMacroArtifact
+  )
+  implicit val arbRustWorkspaceResult: Arbitrary[RustWorkspaceResult] = Arbitrary(
+    genRustWorkspaceResult
+  )
+  implicit val arbRustPackage: Arbitrary[RustPackage] = Arbitrary(
+    genRustPackage
+  )
+  implicit val arbRustRawDependency: Arbitrary[RustRawDependency] = Arbitrary(genRustRawDependency)
+  implicit val arbRustTarget: Arbitrary[RustTarget] = Arbitrary(
+    genRustTarget
+  )
+  implicit val arbRustFeature: Arbitrary[RustFeature] = Arbitrary(
+    genRustFeature
+  )
 }
 
 object Bsp4jArbitrary extends Bsp4jArbitrary

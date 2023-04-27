@@ -1,7 +1,6 @@
 package ch.epfl.scala.bsp
 
 import java.net.{URI, URISyntaxException}
-
 import ch.epfl.scala.bsp.BuildTargetEventKind.{Changed, Created, Deleted}
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
@@ -1377,5 +1376,170 @@ final case class PythonOptionsResult(items: List[PythonOptionsItem])
 
 object PythonOptionsResult {
   implicit val codec: JsonValueCodec[PythonOptionsResult] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustDepKindInfo(
+    kind: String,
+    target: String
+)
+
+object RustDepKindInfo {
+  implicit val codec: JsonValueCodec[RustDepKindInfo] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustFeature(
+    name: String,
+    deps: List[String]
+)
+
+object RustFeature {
+  implicit val codec: JsonValueCodec[RustFeature] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustEnvData(name: String, value: String)
+
+object RustEnvData {
+  implicit val codec: JsonValueCodec[RustEnvData] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustKeyValueMapper(key: String, value: List[String])
+
+object RustKeyValueMapper {
+  implicit val codec: JsonValueCodec[RustKeyValueMapper] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustCfgOptions(
+    keyValueOptions: List[RustKeyValueMapper],
+    nameOptions: List[String]
+)
+
+object RustCfgOptions {
+  implicit val codec: JsonValueCodec[RustCfgOptions] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustProcMacroArtifact(path: String, hash: String)
+
+object RustProcMacroArtifact {
+  implicit val codec: JsonValueCodec[RustProcMacroArtifact] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustPackage(
+    id: String,
+    version: String,
+    origin: String,
+    edition: String,
+    targets: List[RustTarget],
+    allTargets: List[RustTarget],
+    features: List[RustFeature],
+    enabledFeatures: List[String],
+    cfgOptions: RustCfgOptions,
+    env: List[RustEnvData],
+    outDirUrl: String,
+    procMacroArtifact: RustProcMacroArtifact
+)
+
+object RustPackage {
+  implicit val codec: JsonValueCodec[RustPackage] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustRawDependency(
+    packageId: String,
+    name: String,
+    rename: String,
+    kind: String,
+    target: String,
+    optional: Boolean,
+    uses_default_features: Boolean,
+    features: List[String]
+)
+
+object RustRawDependency {
+  implicit val codec: JsonValueCodec[RustRawDependency] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustTarget(
+    name: String,
+    crateRootUrl: String,
+    packageRootUrl: String,
+    kind: String,
+    edition: String,
+    doctest: Boolean,
+    requiredFeatures: List[String]
+)
+
+object RustTarget {
+  implicit val codec: JsonValueCodec[RustTarget] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustDependency(
+    source: String,
+    target: String,
+    name: String,
+    depKinds: List[RustDepKindInfo]
+)
+
+object RustDependency {
+  implicit val codec: JsonValueCodec[RustDependency] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustWorkspaceParams(
+    targets: List[BuildTargetIdentifier]
+)
+
+object RustWorkspaceParams {
+  implicit val codec: JsonValueCodec[RustWorkspaceParams] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustWorkspaceResult(
+    packages: List[RustPackage],
+    rawDependencies: List[RustRawDependency],
+    dependencies: List[RustDependency]
+)
+
+object RustWorkspaceResult {
+  implicit val codec: JsonValueCodec[RustWorkspaceResult] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustStdLib(
+    rustcSysroot: String,
+    rustcSrcSysroot: String,
+    rustcVersion: String
+)
+
+object RustStdLib {
+  implicit val codec: JsonValueCodec[RustStdLib] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustToolchainParams(
+    targets: List[BuildTargetIdentifier]
+)
+
+object RustToolchainParams {
+  implicit val codec: JsonValueCodec[RustToolchainParams] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class RustToolchainResult(
+    stdLib: RustStdLib,
+    cargoBinPath: String,
+    procMacroSrvPath: String
+)
+
+object RustToolchainResult {
+  implicit val codec: JsonValueCodec[RustToolchainResult] =
     JsonCodecMaker.makeWithRequiredCollectionFields
 }

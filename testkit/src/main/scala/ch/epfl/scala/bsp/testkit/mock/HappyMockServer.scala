@@ -40,7 +40,7 @@ class HappyMockServer(base: File) extends AbstractMockServer {
   def serverVersion = "1.0"
   def bspVersion = "2.0"
 
-  def supportedLanguages: util.List[String] = List("java", "scala", "cpp", "python").asJava
+  def supportedLanguages: util.List[String] = List("java", "scala", "cpp", "python", "rust").asJava
 
   def capabilities: BuildServerCapabilities = {
     val c = new BuildServerCapabilities()
@@ -63,6 +63,7 @@ class HappyMockServer(base: File) extends AbstractMockServer {
   private val languageIds = List("scala").asJava
   private val cppLanguageId = List("cpp").asJava
   private val pythonLanguageId = List("python").asJava
+  private val rustLanguageId = List("rust").asJava
 
   val targetId1 = new BuildTargetIdentifier(baseUri.resolve("target1").toString)
   val targetId2 = new BuildTargetIdentifier(baseUri.resolve("target2").toString)
@@ -210,6 +211,19 @@ class HappyMockServer(base: File) extends AbstractMockServer {
       val item = new PythonOptionsItem(targetId5, interpreterOpts)
       val result = new PythonOptionsResult(List(item).asJava)
       Right(result)
+    }
+  }
+
+  override def rustWorkspace(): CompletableFuture[RustWorkspaceResult] = {
+    handleRequest {
+      Right(
+        new RustWorkspaceResult(
+          List.empty.asJava,
+          List.empty.asJava,
+          List.empty.asJava,
+          List.empty.asJava
+        )
+      )
     }
   }
 

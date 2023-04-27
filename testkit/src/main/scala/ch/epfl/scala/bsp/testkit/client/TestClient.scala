@@ -864,6 +864,46 @@ class TestClient(
   ): Unit =
     wrapTest(session => testPythonOptions(params, expectedResult, session))
 
+  def testRustWorkspace(
+      expectedResult: RustWorkspaceResult,
+      session: MockSession
+  ): Future[Unit] = {
+    session.connection.server
+      .rustWorkspace()
+      .toScala
+      .map(result => {
+
+        val packages = result.getPackages == expectedResult.getPackages
+        assert(
+          packages,
+          s"Rust packages didn't match! Expected: ${expectedResult.getPackages}, got ${result.getPackages}"
+        )
+
+        val dependencies = result.getRawDependencies == expectedResult.getRawDependencies
+        assert(
+          dependencies,
+          s"Rust raw dependencies didn't match! Expected: ${expectedResult.getRawDependencies}, got ${result.getRawDependencies}"
+        )
+
+        val toDepMapping = result.getPackageToDepMapper == expectedResult.getPackageToDepMapper
+        assert(
+          toDepMapping,
+          s"Rust dependence mapping didn't match! Expected: ${expectedResult.getPackageToDepMapper}, got ${result.getPackageToDepMapper}"
+        )
+
+        val toRawMapping = result.getPackageToRawMapper == expectedResult.getPackageToRawMapper
+        assert(
+          toRawMapping,
+          s"Rust raw mapping didn't match! Expected: ${expectedResult.getPackageToRawMapper}, got ${result.getPackageToRawMapper}"
+        )
+      })
+  }
+
+  def testRustWorkspace(
+      expectedResult: RustWorkspaceResult
+  ): Unit =
+    wrapTest(session => testRustWorkspace(expectedResult, session))
+
   def testScalaMainClasses(
       params: ScalaMainClassesParams,
       expectedResult: ScalaMainClassesResult,

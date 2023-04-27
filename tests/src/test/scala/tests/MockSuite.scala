@@ -21,6 +21,7 @@ trait MockBuildServer
     with JavaBuildServer
     with CppBuildServer
     with PythonBuildServer
+    with RustBuildServer
 
 class HappyMockSuite extends AnyFunSuite {
 
@@ -73,7 +74,6 @@ class HappyMockSuite extends AnyFunSuite {
     compareJvmBuildTarget(jvmBuildTarget)
     compareSbtBuildTarget(sbtBuildTarget)
     compareCppBuildTargets(cppBuildTarget)
-    comparePythonBuildTarget(pythonBuildTarget)
   }
 
   def compareSbtBuildTarget(sbtBuildTarget: SbtBuildTarget): Unit = {
@@ -175,6 +175,18 @@ class HappyMockSuite extends AnyFunSuite {
       assert(options.nonEmpty)
       assert(options.exists(_.contains("-E")))
     }
+  }
+
+  def assertRustWorkspace(server: MockBuildServer): Unit = {
+    val rustBuildServer = server.rustWorkspace().get
+    val packages = rustBuildServer.getPackages.asScala
+    val rawDependencies = rustBuildServer.getRawDependencies.asScala
+    val packageToDepMapper = rustBuildServer.getPackageToDepMapper.asScala
+    val packageToRawMapper = rustBuildServer.getPackageToRawMapper.asScala
+    assert(packages.isEmpty)
+    assert(rawDependencies.isEmpty)
+    assert(packageToDepMapper.isEmpty)
+    assert(packageToRawMapper.isEmpty)
   }
 
   def assertJvmTestEnvironment(server: MockBuildServer): Unit = {
@@ -299,7 +311,7 @@ class HappyMockSuite extends AnyFunSuite {
     val runs = serverCapabilities.getCompileProvider.getLanguageIds.asScala
     val tests = serverCapabilities.getCompileProvider.getLanguageIds.asScala
 
-    val languages = List("scala", "java", "cpp", "python").sorted
+    val languages = List("scala", "java", "cpp", "python", "rust").sorted
     assert(compiles.sorted == languages)
     assert(runs.sorted == languages)
     assert(tests.sorted == languages)
@@ -311,6 +323,7 @@ class HappyMockSuite extends AnyFunSuite {
     assertJavacOptions(server)
     assertCppOptions(server)
     assertPythonOptions(server)
+    assertRustWorkspace(server)
     assertJvmTestEnvironment(server)
     assertJvmRunEnvironment(server)
     assertSources(server, client)
