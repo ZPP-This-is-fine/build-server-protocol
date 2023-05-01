@@ -56,7 +56,7 @@ structure RustPackage {
     @required
     features: RustFeatures
     @required
-    enabledFeatures: RustStringFeatures
+    enabledFeatures: Strings
     cfgOptions: RustCfgOptions
     @required
     env: RustEnvDatas
@@ -80,7 +80,7 @@ structure RustTarget {
     kind: String
     edition: String
     doctest: Boolean
-    requiredFeatures: RustStringFeatures
+    requiredFeatures: Strings
 }
 
 list RustFeatures {
@@ -94,10 +94,6 @@ structure RustFeature {
 }
 
 list Strings {
-    member: String
-}
-
-list RustStringFeatures {
     member: String
 }
 
@@ -135,7 +131,7 @@ structure RustRawDependency {
     optional: Boolean
     uses_default_features: Boolean
     @required
-    features: RustStringFeatures
+    features: Strings
 }
 
 map RustDependencies {
