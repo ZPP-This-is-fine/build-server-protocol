@@ -122,7 +122,7 @@ structure RustProcMacroArtifact {
 }
 
 map RustRawDependencies {
-    key: String
+    key: String // PackageId
     value: RustRawDependency
 }
 
@@ -139,7 +139,7 @@ structure RustRawDependency {
 }
 
 map RustDependencies {
-    key: String
+    key: String // Source
     value: RustDependency
 }
 
@@ -180,7 +180,7 @@ list RustToolchainsItems {
     member: RustToolchainsItem
 }
 
-structure RustToolchainsItems {
+structure RustToolchainsItem {
     rustStdLib: RustStdLib
     @required
     cargoBinPath: String
