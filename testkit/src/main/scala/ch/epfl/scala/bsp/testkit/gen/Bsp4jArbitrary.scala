@@ -190,8 +190,6 @@ trait Bsp4jArbitrary {
   implicit val arbPythonOptionsResult: Arbitrary[PythonOptionsResult] = Arbitrary(
     genPythonOptionsResult
   )
-  implicit val arbRustRawMapper: Arbitrary[RustRawMapper] = Arbitrary(genRustRawMapper)
-  implicit val arbRustDepMapper: Arbitrary[RustDepMapper] = Arbitrary(genRustDepMapper)
   implicit val arbRustDepKindInfo: Arbitrary[RustDepKindInfo] = Arbitrary(genRustDepKindInfo)
   implicit val arbRustEnvData: Arbitrary[RustEnvData] = Arbitrary(
     genRustEnvData
@@ -212,6 +210,7 @@ trait Bsp4jArbitrary {
     genRustPackage
   )
   implicit val arbRustRawDependency: Arbitrary[RustRawDependency] = Arbitrary(genRustRawDependency)
+  implicit val arbRustDependency: Arbitrary[RustDependency] = Arbitrary(genRustDependency)
   implicit val arbRustTarget: Arbitrary[RustTarget] = Arbitrary(
     genRustTarget
   )

@@ -7,12 +7,10 @@ sidebar_label: Rust
 The following section contains Rust-specific extensions to the build server
 protocol.
 
-## Rust Build Target
-
-`RustBuildTarget` is a basic data structure that contains Rust-specific
-metadata, specifically the compiler reference and the Rust edition.
-This metadata is embedded in the `data: Option[Json]` field of the `BuildTarget` definition when
-the `dataKind` field contains "rust".
+## Rust Workspace Request
+This endpoint returns information in format that can be easily used by rust-intellij to get all information required to resolve the project
+- method: `buildTarget/rustWorkspace`
+- params: `RustWorkspaceParams`
 
 ```ts
 export interface RustBuildTarget {
@@ -43,7 +41,7 @@ export interface RustOptionsParams {
 
 Response:
 
-- result: `RustOptionsResult`, defined as follows
+- result: `RustWorkspaceResult`, defined as follows
 
 ```ts
 export interface RustOptionsResult {

@@ -838,6 +838,100 @@ class TestClient(
   ): Unit =
     wrapTest(session => testCppOptions(params, expectedResult, session))
 
+  def testRustWorkspace(
+      params: RustWorkspaceParams,
+      expectedResult: RustWorkspaceResult,
+      session: MockSession
+  ): Future[Unit] = {
+    session.connection.server
+      .rustWorkspace(params)
+      .toScala
+      .map(result => {
+        val packages = result.getPackages
+        val expectedPackages = expectedResult.getPackages
+
+        val testItems = packages.forall { item =>
+          expectedPackages.contains(item)
+        }
+        assert(
+          testItems,
+          s"Rust Workspace Items did not match!\n${val visitor = new ToMapPrintingVisitor(packages, expectedPackages)
+            visitor.getMessagesAsString }"
+        )
+
+        val rawDependencies = result.getDependencies
+        val expectedDependencies = expectedResult.getDependencies
+
+        val testRawDependencies = rawDependencies.forall { item =>
+          expectedDependencies.contains(item)
+        }
+        assert(
+          testRawDependencies,
+          s"Rust Workspace Raw Dependencies did not match!\n${val visitor = new ToMapPrintingVisitor(rawDependencies, expectedDependencies)
+            visitor.getMessagesAsString }"
+        )
+
+        val rawWorkspaceRoot = result.getRawDependencies
+        val expectedWorkspaceRoot = expectedResult.getRawDependencies
+
+        val testRawWorkspaceRoot = rawWorkspaceRoot.forall { item =>
+          expectedWorkspaceRoot.contains(item)
+        }
+        assert(
+          testRawWorkspaceRoot,
+          s"Rust Workspace Raw Workspace Root did not match!\n${val visitor = new ToMapPrintingVisitor(rawWorkspaceRoot, expectedWorkspaceRoot)
+            visitor.getMessagesAsString }"
+        )
+
+        val resolvedTargets = result.getResolvedTargets
+        val expectedResolvedTargets = expectedResult.getResolvedTargets
+
+        val testResolvedTargets = resolvedTargets.forall { item =>
+          expectedResolvedTargets.contains(item)
+        }
+        assert(
+          testResolvedTargets,
+          s"Rust Workspace Resolved Targets did not match!\n${val visitor = new ToMapPrintingVisitor(resolvedTargets, expectedResolvedTargets)
+            visitor.getMessagesAsString }"
+        )
+      })
+  }
+
+  def testRustWorkspace(
+      params: RustWorkspaceParams,
+      expectedResult: RustWorkspaceResult
+  ): Unit =
+    wrapTest(session => testRustWorkspace(params, expectedResult, session))
+
+  def testRustToolchain(
+      params: RustToolchainParams,
+      expectedResult: RustToolchainResult,
+      session: MockSession
+  ): Future[Unit] = {
+    session.connection.server
+      .rustToolchain(params)
+      .toScala
+      .map(result => {
+        val rustToolchains = result.getToolchains
+        val expectedToolchains = expectedResult.getToolchains
+
+        val testItems = rustToolchains.forall { item =>
+          expectedToolchains.contains(item)
+        }
+        assert(
+          testItems,
+          s"Rust Toolchain Items did not match!\n${val visitor = new ToMapPrintingVisitor(rustToolchains, expectedToolchains)
+            visitor.getMessagesAsString }"
+        )
+      })
+  }
+
+  def testRustToolchain(
+      params: RustToolchainParams,
+      expectedResult: RustToolchainResult
+  ): Unit =
+    wrapTest(session => testRustToolchain(params, expectedResult, session))
+
   def testPythonOptions(
       params: PythonOptionsParams,
       expectedResult: PythonOptionsResult,
@@ -863,46 +957,6 @@ class TestClient(
       expectedResult: PythonOptionsResult
   ): Unit =
     wrapTest(session => testPythonOptions(params, expectedResult, session))
-
-  def testRustWorkspace(
-      expectedResult: RustWorkspaceResult,
-      session: MockSession
-  ): Future[Unit] = {
-    session.connection.server
-      .rustWorkspace()
-      .toScala
-      .map(result => {
-
-        val packages = result.getPackages == expectedResult.getPackages
-        assert(
-          packages,
-          s"Rust packages didn't match! Expected: ${expectedResult.getPackages}, got ${result.getPackages}"
-        )
-
-        val dependencies = result.getRawDependencies == expectedResult.getRawDependencies
-        assert(
-          dependencies,
-          s"Rust raw dependencies didn't match! Expected: ${expectedResult.getRawDependencies}, got ${result.getRawDependencies}"
-        )
-
-        val toDepMapping = result.getPackageToDepMapper == expectedResult.getPackageToDepMapper
-        assert(
-          toDepMapping,
-          s"Rust dependence mapping didn't match! Expected: ${expectedResult.getPackageToDepMapper}, got ${result.getPackageToDepMapper}"
-        )
-
-        val toRawMapping = result.getPackageToRawMapper == expectedResult.getPackageToRawMapper
-        assert(
-          toRawMapping,
-          s"Rust raw mapping didn't match! Expected: ${expectedResult.getPackageToRawMapper}, got ${result.getPackageToRawMapper}"
-        )
-      })
-  }
-
-  def testRustWorkspace(
-      expectedResult: RustWorkspaceResult
-  ): Unit =
-    wrapTest(session => testRustWorkspace(expectedResult, session))
 
   def testScalaMainClasses(
       params: ScalaMainClassesParams,
