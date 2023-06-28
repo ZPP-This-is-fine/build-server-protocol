@@ -1,3 +1,4 @@
 {
+"version" : "test",
   "imports": ["./spec/src/main"]
 }

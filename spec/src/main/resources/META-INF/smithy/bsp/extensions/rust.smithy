@@ -5,6 +5,7 @@ namespace bsp.rust
 use bsp#BuildTargetData
 use bsp#BuildTargetIdentifiers
 use jsonrpc#data
+use jsonrpc#dataKind
 use jsonrpc#jsonRPC
 use jsonrpc#jsonRequest
 
@@ -68,7 +69,7 @@ list RustTargets {
     member: RustTarget
 }
 
-@data(kind: "rust", extends: BuildTargetData)
+@dataKind(kind: "rust", extends: BuildTargetData)
 structure RustTarget {
     @required
     name: String
