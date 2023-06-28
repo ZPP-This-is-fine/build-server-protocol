@@ -875,7 +875,7 @@ trait Bsp4jGenerators {
     source,
     target,
     name,
-    depKinds,
+    depKinds
   )
 
   lazy val genRustTarget: Gen[RustTarget] = for {
@@ -886,7 +886,15 @@ trait Bsp4jGenerators {
     edition <- arbitrary[String]
     doctest <- arbitrary[Boolean]
     requiredFeatures <- arbitrary[String].list
-  } yield new RustTarget(name, crateRootUrl, packageRooTUrl, kind, edition, doctest, requiredFeatures)
+  } yield new RustTarget(
+    name,
+    crateRootUrl,
+    packageRooTUrl,
+    kind,
+    edition,
+    doctest,
+    requiredFeatures
+  )
 
   lazy val genRustWorkspaceResult: Gen[RustWorkspaceResult] = for {
     packages <- genRustPackage.list

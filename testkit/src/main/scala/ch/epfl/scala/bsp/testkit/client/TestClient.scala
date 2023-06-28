@@ -20,10 +20,10 @@ import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 class TestClient(
-                  serverBuilder: () => (OutputStream, InputStream, () => Unit),
-                  initializeBuildParams: InitializeBuildParams,
-                  timeoutDuration: Duration = 30.seconds
-                ) {
+    serverBuilder: () => (OutputStream, InputStream, () => Unit),
+    initializeBuildParams: InitializeBuildParams,
+    timeoutDuration: Duration = 30.seconds
+) {
 
   private val alreadySentDiagnosticsTimeout = 2.seconds
 
@@ -76,14 +76,14 @@ class TestClient(
     wrapTest(targetsCompileUnsuccessfully)
 
   def testTargetsCompileSuccessfully(
-                                      targets: java.util.List[BuildTarget],
-                                      withTaskNotifications: Boolean
-                                    ): Unit =
+      targets: java.util.List[BuildTarget],
+      withTaskNotifications: Boolean
+  ): Unit =
     wrapTest(session => testTargetsCompileSuccessfully(session, withTaskNotifications, targets))
 
   def testTargetsCompileSuccessfully(
-                                      withTaskNotifications: Boolean
-                                    ): Unit =
+      withTaskNotifications: Boolean
+  ): Unit =
     wrapTest(session =>
       getAllBuildTargets(session)
         .flatMap(targets => {
@@ -96,10 +96,10 @@ class TestClient(
     )
 
   def testTargetsCompileSuccessfully(
-                                      session: MockSession,
-                                      withTaskNotifications: Boolean,
-                                      targets: java.util.List[BuildTarget]
-                                    ): Future[Unit] =
+      session: MockSession,
+      withTaskNotifications: Boolean,
+      targets: java.util.List[BuildTarget]
+  ): Future[Unit] =
     targetsCompileSuccessfully(targets, session, List.empty).map(_ => {
       if (withTaskNotifications) {
         val taskStartNotification = session.client.poll(
@@ -146,24 +146,24 @@ class TestClient(
     )
 
   private def getAllBuildTargets(
-                                  session: MockSession
-                                ): Future[mutable.Buffer[BuildTarget]] =
+      session: MockSession
+  ): Future[mutable.Buffer[BuildTarget]] =
     session.connection.server
       .workspaceBuildTargets()
       .toScala
       .map(targetsResult => targetsResult.getTargets.asScala)
 
   def testCompareWorkspaceTargetsResults(
-                                          expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult
-                                        ): Unit =
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult
+  ): Unit =
     wrapTest(session =>
       compareWorkspaceTargetsResults(expectedWorkspaceBuildTargetsResult, session)
     )
 
   def testDependencySourcesResults(
-                                    expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                                    expectedWorkspaceDependencySourcesResult: DependencySourcesResult
-                                  ): Unit =
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      expectedWorkspaceDependencySourcesResult: DependencySourcesResult
+  ): Unit =
     wrapTest(session =>
       compareResults(
         targets =>
@@ -184,9 +184,9 @@ class TestClient(
     )
 
   def testResourcesResults(
-                            expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                            expectedResourcesResult: ResourcesResult
-                          ): Unit =
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      expectedResourcesResult: ResourcesResult
+  ): Unit =
     wrapTest(session =>
       compareResults(
         targets => session.connection.server.buildTargetResources(new ResourcesParams(targets)),
@@ -205,9 +205,9 @@ class TestClient(
     )
 
   def testInverseSourcesResults(
-                                 textDocument: TextDocumentIdentifier,
-                                 expectedInverseSourcesResult: InverseSourcesResult
-                               ): Unit =
+      textDocument: TextDocumentIdentifier,
+      expectedInverseSourcesResult: InverseSourcesResult
+  ): Unit =
     wrapTest(session => {
       session.connection.server
         .buildTargetInverseSources(new InverseSourcesParams(textDocument))
@@ -313,10 +313,10 @@ class TestClient(
     )
 
   def targetsCompileSuccessfully(
-                                  targets: java.util.List[BuildTarget],
-                                  session: MockSession,
-                                  compileDiagnostics: List[ExpectedDiagnostic]
-                                ): Future[List[PublishDiagnosticsParams]] = {
+      targets: java.util.List[BuildTarget],
+      session: MockSession,
+      compileDiagnostics: List[ExpectedDiagnostic]
+  ): Future[List[PublishDiagnosticsParams]] = {
     compileTarget(targets.asScala, session).flatMap(result => {
       assert(result.getStatusCode == StatusCode.OK, "Targets failed to compile!")
       Future
@@ -329,17 +329,17 @@ class TestClient(
   }
 
   def targetsCompileSuccessfully(
-                                  session: MockSession,
-                                  compileDiagnostics: List[ExpectedDiagnostic] = List.empty
-                                ): Future[Any] =
+      session: MockSession,
+      compileDiagnostics: List[ExpectedDiagnostic] = List.empty
+  ): Future[Any] =
     getAllBuildTargets(session).flatMap(targets => {
       targetsCompileSuccessfully(targets.asJava, session, compileDiagnostics)
     })
 
   final private def obtainExpectedDiagnostic(
-                                              expectedDiagnostic: ExpectedDiagnostic,
-                                              session: MockSession
-                                            ): Future[PublishDiagnosticsParams] =
+      expectedDiagnostic: ExpectedDiagnostic,
+      session: MockSession
+  ): Future[PublishDiagnosticsParams] =
     session.client.poll(
       session.client.getPublishDiagnostics,
       alreadySentDiagnosticsTimeout,
@@ -348,9 +348,9 @@ class TestClient(
     )
 
   final private def obtainExpectedNotification(
-                                                expectedNotification: BuildTargetEventKind,
-                                                session: MockSession
-                                              ): Future[DidChangeBuildTarget] = {
+      expectedNotification: BuildTargetEventKind,
+      session: MockSession
+  ): Future[DidChangeBuildTarget] = {
     session.client.poll(
       session.client.getDidChangeBuildTarget,
       alreadySentDiagnosticsTimeout,
@@ -382,9 +382,9 @@ class TestClient(
     )
 
   private def targetsTestSuccessfully(
-                                       targets: mutable.Buffer[BuildTarget],
-                                       session: MockSession
-                                     ): Future[Unit] = {
+      targets: mutable.Buffer[BuildTarget],
+      session: MockSession
+  ): Future[Unit] = {
     testTargets(targets, session).map(testResult => {
       assert(testResult.getStatusCode == StatusCode.OK, "Tests to targets failed!")
     })
@@ -405,9 +405,9 @@ class TestClient(
       }
 
   private def targetsRunSuccessfully(
-                                      targets: mutable.Buffer[BuildTarget],
-                                      session: MockSession
-                                    ): Future[Unit] =
+      targets: mutable.Buffer[BuildTarget],
+      session: MockSession
+  ): Future[Unit] =
     runTargets(targets, session).map(targetResults => {
       assert(
         targetResults.forall(_.getStatusCode == StatusCode.OK),
@@ -419,17 +419,18 @@ class TestClient(
     session.connection.server
       .workspaceBuildTargets()
       .toScala
-      .flatMap(targets => {
-        runTargets(
-          targets.getTargets.asScala,
-          session
-        )
-      }.map(targetResults => {
-        assert(
-          targetResults.forall(_.getStatusCode != StatusCode.OK),
-          "Targets were able to run!"
-        )
-      })
+      .flatMap(targets =>
+        {
+          runTargets(
+            targets.getTargets.asScala,
+            session
+          )
+        }.map(targetResults => {
+          assert(
+            targetResults.forall(_.getStatusCode != StatusCode.OK),
+            "Targets were able to run!"
+          )
+        })
       )
 
   private def runTargets(targets: mutable.Buffer[BuildTarget], session: MockSession) =
@@ -461,8 +462,8 @@ class TestClient(
     Option(gson.fromJson[PythonBuildTarget](data, classOf[PythonBuildTarget]))
 
   def convertJsonObjectToData(
-                               workspaceBuildTargetsResult: WorkspaceBuildTargetsResult
-                             ): WorkspaceBuildTargetsResult = {
+      workspaceBuildTargetsResult: WorkspaceBuildTargetsResult
+  ): WorkspaceBuildTargetsResult = {
     val targets = workspaceBuildTargetsResult.getTargets
     targets.forEach { target =>
       Option(target.getData)
@@ -487,9 +488,9 @@ class TestClient(
   }
 
   private def compareWorkspaceTargetsResults(
-                                              expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                                              session: MockSession
-                                            ): Future[WorkspaceBuildTargetsResult] =
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      session: MockSession
+  ): Future[WorkspaceBuildTargetsResult] =
     session.connection.server
       .workspaceBuildTargets()
       .toScala
@@ -499,19 +500,17 @@ class TestClient(
           compareBuildTargets(expectedWorkspaceBuildTargetsResult, workspaceBuildTargetsResult)
         assert(
           !testTargetsDiff.hasChanges,
-          s"Workspace Build Targets did not match!\n${
-            val visitor = new ToMapPrintingVisitor(workspaceBuildTargetsResult, expectedWorkspaceBuildTargetsResult)
+          s"Workspace Build Targets did not match!\n${val visitor = new ToMapPrintingVisitor(workspaceBuildTargetsResult, expectedWorkspaceBuildTargetsResult)
             testTargetsDiff.visit(visitor)
-            visitor.getMessagesAsString
-          }"
+            visitor.getMessagesAsString }"
         )
         workspaceBuildTargetsResult
       })
 
   private def compareBuildTargets(
-                                   expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                                   workspaceBuildTargetsResult: WorkspaceBuildTargetsResult
-                                 ): DiffNode = {
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      workspaceBuildTargetsResult: WorkspaceBuildTargetsResult
+  ): DiffNode = {
     ObjectDifferBuilder
       .startBuilding()
       .inclusion()
@@ -531,12 +530,12 @@ class TestClient(
   }
 
   private def compareResults[T](
-                                 getResults: java.util.List[BuildTargetIdentifier] => CompletableFuture[T],
-                                 condition: T => Boolean,
-                                 expectedResults: T,
-                                 expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                                 session: MockSession
-                               ): Future[Unit] = {
+      getResults: java.util.List[BuildTargetIdentifier] => CompletableFuture[T],
+      condition: T => Boolean,
+      expectedResults: T,
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      session: MockSession
+  ): Future[Unit] = {
     compareWorkspaceTargetsResults(expectedWorkspaceBuildTargetsResult, session)
       .flatMap(buildTargets => {
         val targets = buildTargets.getTargets.asScala
@@ -552,9 +551,9 @@ class TestClient(
   }
 
   def testSourcesResults(
-                          expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                          expectedWorkspaceSourcesResult: SourcesResult
-                        ): Unit =
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      expectedWorkspaceSourcesResult: SourcesResult
+  ): Unit =
     wrapTest(session =>
       testSourcesResults(
         expectedWorkspaceBuildTargetsResult,
@@ -564,26 +563,27 @@ class TestClient(
     )
 
   def testSourcesResults(
-                          expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                          expectedWorkspaceSourcesResult: SourcesResult,
-                          session: MockSession
-                        ): Future[Unit] = {
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      expectedWorkspaceSourcesResult: SourcesResult,
+      session: MockSession
+  ): Future[Unit] = {
     compareResults(
       targets => session.connection.server.buildTargetSources(new SourcesParams(targets)),
       (results: SourcesResult) =>
-        expectedWorkspaceSourcesResult.getItems.forall { sourceItem => {
-          results.getItems.exists(resultItem =>
-            resultItem.getTarget == sourceItem.getTarget && sourceItem.getSources.forall(
-              sourceFile =>
-                resultItem.getSources.exists(resultSource =>
-                  resultSource.getUri
-                    .contains(
-                      sourceFile.getUri
-                    ) && resultSource.getKind == sourceFile.getKind && resultSource.getGenerated == sourceFile.getGenerated
-                )
+        expectedWorkspaceSourcesResult.getItems.forall { sourceItem =>
+          {
+            results.getItems.exists(resultItem =>
+              resultItem.getTarget == sourceItem.getTarget && sourceItem.getSources.forall(
+                sourceFile =>
+                  resultItem.getSources.exists(resultSource =>
+                    resultSource.getUri
+                      .contains(
+                        sourceFile.getUri
+                      ) && resultSource.getKind == sourceFile.getKind && resultSource.getGenerated == sourceFile.getGenerated
+                  )
+              )
             )
-          )
-        }
+          }
         },
       expectedWorkspaceSourcesResult,
       expectedWorkspaceBuildTargetsResult,
@@ -592,9 +592,9 @@ class TestClient(
   }
 
   def testOutputPathsResults(
-                              expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                              expectedWorkspaceOutputPathsResult: OutputPathsResult
-                            ): Unit =
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      expectedWorkspaceOutputPathsResult: OutputPathsResult
+  ): Unit =
     wrapTest(session =>
       testOutputPathsResult(
         expectedWorkspaceBuildTargetsResult,
@@ -604,26 +604,27 @@ class TestClient(
     )
 
   def testOutputPathsResult(
-                             expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
-                             expectedWorkspaceOutputPathsResult: OutputPathsResult,
-                             session: MockSession
-                           ): Future[Unit] = {
+      expectedWorkspaceBuildTargetsResult: WorkspaceBuildTargetsResult,
+      expectedWorkspaceOutputPathsResult: OutputPathsResult,
+      session: MockSession
+  ): Future[Unit] = {
     compareResults(
       targets => session.connection.server.buildTargetOutputPaths(new OutputPathsParams(targets)),
       (results: OutputPathsResult) =>
-        expectedWorkspaceOutputPathsResult.getItems.forall { outputPathsItem => {
-          results.getItems.exists(resultItem =>
-            resultItem.getTarget == outputPathsItem.getTarget && outputPathsItem.getOutputPaths
-              .forall(outputPathItem =>
-                resultItem.getOutputPaths.exists(resultOutputPath =>
-                  resultOutputPath.getUri
-                    .contains(
-                      outputPathItem.getUri
-                    ) && resultOutputPath.getKind == outputPathItem.getKind
+        expectedWorkspaceOutputPathsResult.getItems.forall { outputPathsItem =>
+          {
+            results.getItems.exists(resultItem =>
+              resultItem.getTarget == outputPathsItem.getTarget && outputPathsItem.getOutputPaths
+                .forall(outputPathItem =>
+                  resultItem.getOutputPaths.exists(resultOutputPath =>
+                    resultOutputPath.getUri
+                      .contains(
+                        outputPathItem.getUri
+                      ) && resultOutputPath.getKind == outputPathItem.getKind
+                  )
                 )
-              )
-          )
-        }
+            )
+          }
         },
       expectedWorkspaceOutputPathsResult,
       expectedWorkspaceBuildTargetsResult,
@@ -660,16 +661,16 @@ class TestClient(
   }
 
   def testDidChangeNotification(
-                                 buildTargetEventKind: BuildTargetEventKind,
-                                 session: MockSession
-                               ): Future[DidChangeBuildTarget] =
+      buildTargetEventKind: BuildTargetEventKind,
+      session: MockSession
+  ): Future[DidChangeBuildTarget] =
     obtainExpectedNotification(buildTargetEventKind, session)
 
   def testJvmRunEnvironment(
-                             params: JvmRunEnvironmentParams,
-                             expectedResult: JvmRunEnvironmentResult,
-                             session: MockSession
-                           ): Future[Unit] = {
+      params: JvmRunEnvironmentParams,
+      expectedResult: JvmRunEnvironmentResult,
+      session: MockSession
+  ): Future[Unit] = {
     session.connection.server
       .jvmRunEnvironment(params)
       .toScala
@@ -678,26 +679,24 @@ class TestClient(
         val testItemsDiff = testJvmItems(jvmItems, expectedResult.getItems)
         assert(
           !testItemsDiff.hasChanges,
-          s"JVM Run Environment Items did not match!\n${
-            val visitor = new ToMapPrintingVisitor(jvmItems, expectedResult.getItems)
+          s"JVM Run Environment Items did not match!\n${val visitor = new ToMapPrintingVisitor(jvmItems, expectedResult.getItems)
             testItemsDiff.visit(visitor)
-            visitor.getMessagesAsString
-          }"
+            visitor.getMessagesAsString }"
         )
       })
   }
 
   def testJvmRunEnvironment(
-                             params: JvmRunEnvironmentParams,
-                             expectedResult: JvmRunEnvironmentResult
-                           ): Unit =
+      params: JvmRunEnvironmentParams,
+      expectedResult: JvmRunEnvironmentResult
+  ): Unit =
     wrapTest(session => testJvmRunEnvironment(params, expectedResult, session))
 
   def testJvmTestEnvironment(
-                              params: JvmTestEnvironmentParams,
-                              expectedResult: JvmTestEnvironmentResult,
-                              session: MockSession
-                            ): Future[Unit] = {
+      params: JvmTestEnvironmentParams,
+      expectedResult: JvmTestEnvironmentResult,
+      session: MockSession
+  ): Future[Unit] = {
     session.connection.server
       .jvmTestEnvironment(params)
       .toScala
@@ -706,25 +705,23 @@ class TestClient(
         val testItemsDiff = testJvmItems(jvmItems, expectedResult.getItems)
         assert(
           !testItemsDiff.hasChanges,
-          s"JVM Test Environment Items did not match!\n${
-            val visitor = new ToMapPrintingVisitor(jvmItems, expectedResult.getItems)
+          s"JVM Test Environment Items did not match!\n${val visitor = new ToMapPrintingVisitor(jvmItems, expectedResult.getItems)
             testItemsDiff.visit(visitor)
-            visitor.getMessagesAsString
-          }"
+            visitor.getMessagesAsString }"
         )
       })
   }
 
   def testJvmTestEnvironment(
-                              params: JvmTestEnvironmentParams,
-                              expectedResult: JvmTestEnvironmentResult
-                            ): Unit =
+      params: JvmTestEnvironmentParams,
+      expectedResult: JvmTestEnvironmentResult
+  ): Unit =
     wrapTest(session => testJvmTestEnvironment(params, expectedResult, session))
 
   private def testJvmItems(
-                            items: java.util.List[JvmEnvironmentItem],
-                            expectedItems: java.util.List[JvmEnvironmentItem]
-                          ): DiffNode = {
+      items: java.util.List[JvmEnvironmentItem],
+      expectedItems: java.util.List[JvmEnvironmentItem]
+  ): DiffNode = {
     ObjectDifferBuilder
       .startBuilding()
       .identity()
@@ -740,10 +737,10 @@ class TestClient(
   }
 
   def testJavacOptions(
-                        params: JavacOptionsParams,
-                        expectedResult: JavacOptionsResult,
-                        session: MockSession
-                      ): Future[Unit] = {
+      params: JavacOptionsParams,
+      expectedResult: JavacOptionsResult,
+      session: MockSession
+  ): Future[Unit] = {
     session.connection.server
       .buildTargetJavacOptions(params)
       .toScala
@@ -763,26 +760,24 @@ class TestClient(
           .compare(javacOptionsItems, expectedResult.getItems)
         assert(
           !diff.hasChanges,
-          s"Javac Options Items did not match!\n${
-            val visitor = new ToMapPrintingVisitor(javacOptionsItems, expectedResult.getItems)
+          s"Javac Options Items did not match!\n${val visitor = new ToMapPrintingVisitor(javacOptionsItems, expectedResult.getItems)
             diff.visit(visitor)
-            visitor.getMessagesAsString
-          }"
+            visitor.getMessagesAsString }"
         )
       })
   }
 
   def testJavacOptions(
-                        params: JavacOptionsParams,
-                        expectedResult: JavacOptionsResult
-                      ): Unit =
+      params: JavacOptionsParams,
+      expectedResult: JavacOptionsResult
+  ): Unit =
     wrapTest(session => testJavacOptions(params, expectedResult, session))
 
   def testScalacOptions(
-                         params: ScalacOptionsParams,
-                         expectedResult: ScalacOptionsResult,
-                         session: MockSession
-                       ): Future[Unit] = {
+      params: ScalacOptionsParams,
+      expectedResult: ScalacOptionsResult,
+      session: MockSession
+  ): Future[Unit] = {
     session.connection.server
       .buildTargetScalacOptions(params)
       .toScala
@@ -802,26 +797,24 @@ class TestClient(
           .compare(scalacOptionsItems, expectedResult.getItems)
         assert(
           !diff.hasChanges,
-          s"Scalac Options Items did not match!\n${
-            val visitor = new ToMapPrintingVisitor(scalacOptionsItems, expectedResult.getItems)
+          s"Scalac Options Items did not match!\n${val visitor = new ToMapPrintingVisitor(scalacOptionsItems, expectedResult.getItems)
             diff.visit(visitor)
-            visitor.getMessagesAsString
-          }"
+            visitor.getMessagesAsString }"
         )
       })
   }
 
   def testScalacOptions(
-                         params: ScalacOptionsParams,
-                         expectedResult: ScalacOptionsResult
-                       ): Unit =
+      params: ScalacOptionsParams,
+      expectedResult: ScalacOptionsResult
+  ): Unit =
     wrapTest(session => testScalacOptions(params, expectedResult, session))
 
   def testCppOptions(
-                      params: CppOptionsParams,
-                      expectedResult: CppOptionsResult,
-                      session: MockSession
-                    ): Future[Unit] = {
+      params: CppOptionsParams,
+      expectedResult: CppOptionsResult,
+      session: MockSession
+  ): Future[Unit] = {
     session.connection.server
       .buildTargetCppOptions(params)
       .toScala
@@ -832,26 +825,24 @@ class TestClient(
           .compare(cppOptionsItems, expectedResult.getItems)
         assert(
           !diff.hasChanges,
-          s"Cpp Options Items did not match!\n${
-            val visitor = new ToMapPrintingVisitor(cppOptionsItems, expectedResult.getItems)
+          s"Cpp Options Items did not match!\n${val visitor = new ToMapPrintingVisitor(cppOptionsItems, expectedResult.getItems)
             diff.visit(visitor)
-            visitor.getMessagesAsString
-          }"
+            visitor.getMessagesAsString }"
         )
       })
   }
 
   def testCppOptions(
-                      params: CppOptionsParams,
-                      expectedResult: CppOptionsResult
-                    ): Unit =
+      params: CppOptionsParams,
+      expectedResult: CppOptionsResult
+  ): Unit =
     wrapTest(session => testCppOptions(params, expectedResult, session))
 
   def testPythonOptions(
-                         params: PythonOptionsParams,
-                         expectedResult: PythonOptionsResult,
-                         session: MockSession
-                       ): Future[Unit] = {
+      params: PythonOptionsParams,
+      expectedResult: PythonOptionsResult,
+      session: MockSession
+  ): Future[Unit] = {
     session.connection.server
       .buildTargetPythonOptions(params)
       .toScala
@@ -868,16 +859,16 @@ class TestClient(
   }
 
   def testPythonOptions(
-                         params: PythonOptionsParams,
-                         expectedResult: PythonOptionsResult
-                       ): Unit =
+      params: PythonOptionsParams,
+      expectedResult: PythonOptionsResult
+  ): Unit =
     wrapTest(session => testPythonOptions(params, expectedResult, session))
 
   def testScalaMainClasses(
-                            params: ScalaMainClassesParams,
-                            expectedResult: ScalaMainClassesResult,
-                            session: MockSession
-                          ): Future[Unit] = {
+      params: ScalaMainClassesParams,
+      expectedResult: ScalaMainClassesResult,
+      session: MockSession
+  ): Future[Unit] = {
     session.connection.server
       .buildTargetScalaMainClasses(params)
       .toScala
@@ -888,26 +879,24 @@ class TestClient(
           .compare(mainItems, expectedResult.getItems)
         assert(
           !diff.hasChanges,
-          s"Scalac Main Classes Items did not match!\n${
-            val visitor = new ToMapPrintingVisitor(mainItems, expectedResult.getItems)
+          s"Scalac Main Classes Items did not match!\n${val visitor = new ToMapPrintingVisitor(mainItems, expectedResult.getItems)
             diff.visit(visitor)
-            visitor.getMessagesAsString
-          }"
+            visitor.getMessagesAsString }"
         )
       })
   }
 
   def testScalaMainClasses(
-                            params: ScalaMainClassesParams,
-                            expectedResult: ScalaMainClassesResult
-                          ): Unit =
+      params: ScalaMainClassesParams,
+      expectedResult: ScalaMainClassesResult
+  ): Unit =
     wrapTest(session => testScalaMainClasses(params, expectedResult, session))
 
   def testScalaTestClasses(
-                            params: ScalaTestClassesParams,
-                            expectedResult: ScalaTestClassesResult,
-                            session: MockSession
-                          ): Future[Unit] = {
+      params: ScalaTestClassesParams,
+      expectedResult: ScalaTestClassesResult,
+      session: MockSession
+  ): Future[Unit] = {
     session.connection.server
       .buildTargetScalaTestClasses(params)
       .toScala
@@ -927,19 +916,17 @@ class TestClient(
           .compare(testItems, expectedResult.getItems)
         assert(
           !diff.hasChanges,
-          s"Scalac Test Classes Items did not match!\n${
-            val visitor = new ToMapPrintingVisitor(testItems, expectedResult.getItems)
+          s"Scalac Test Classes Items did not match!\n${val visitor = new ToMapPrintingVisitor(testItems, expectedResult.getItems)
             diff.visit(visitor)
-            visitor.getMessagesAsString
-          }"
+            visitor.getMessagesAsString }"
         )
       })
   }
 
   def testScalaTestClasses(
-                            params: ScalaTestClassesParams,
-                            expectedResult: ScalaTestClassesResult
-                          ): Unit =
+      params: ScalaTestClassesParams,
+      expectedResult: ScalaTestClassesResult
+  ): Unit =
     wrapTest(session => testScalaTestClasses(params, expectedResult, session))
 
   def testWorkspaceReload(session: MockSession): Future[AnyRef] = session.connection.server
@@ -950,25 +937,25 @@ class TestClient(
     wrapTest(testWorkspaceReload)
 
   def testResolveProject(
-                          javacOptionsFlag: Boolean = false,
-                          scalacOptionsFlag: Boolean = false
-                        ): Unit =
+      javacOptionsFlag: Boolean = false,
+      scalacOptionsFlag: Boolean = false
+  ): Unit =
     wrapTest(testResolveProject(_, javacOptionsFlag, scalacOptionsFlag))
 
   def testResolveProject(
-                          session: MockSession,
-                          javacOptionsFlag: Boolean,
-                          scalacOptionsFlag: Boolean
-                        ): Future[Unit] =
+      session: MockSession,
+      javacOptionsFlag: Boolean,
+      scalacOptionsFlag: Boolean
+  ): Future[Unit] =
     getAllBuildTargets(session)
       .flatMap(testProjectTargetsImport(session, _, javacOptionsFlag, scalacOptionsFlag))
 
   private def testProjectTargetsImport(
-                                        session: MockSession,
-                                        targets: mutable.Buffer[BuildTarget],
-                                        javacOptionsFlag: Boolean,
-                                        scalacOptionsFlag: Boolean
-                                      ): Future[Unit] = {
+      session: MockSession,
+      targets: mutable.Buffer[BuildTarget],
+      javacOptionsFlag: Boolean,
+      scalacOptionsFlag: Boolean
+  ): Future[Unit] = {
     val bspServer = session.connection.server
     val targetIds = targets.map(_.getId).asJava
 
@@ -985,9 +972,9 @@ class TestClient(
   }
 
   private def fetchSources(
-                            bspServer: MockSession.BspMockServer,
-                            targetIds: java.util.List[BuildTargetIdentifier]
-                          ): Future[Unit] = {
+      bspServer: MockSession.BspMockServer,
+      targetIds: java.util.List[BuildTargetIdentifier]
+  ): Future[Unit] = {
     val sourcesParams = new SourcesParams(targetIds)
 
     bspServer
@@ -997,9 +984,9 @@ class TestClient(
   }
 
   private def fetchDependencySources(
-                                      bspServer: MockSession.BspMockServer,
-                                      targetIds: java.util.List[BuildTargetIdentifier]
-                                    ): Future[Unit] = {
+      bspServer: MockSession.BspMockServer,
+      targetIds: java.util.List[BuildTargetIdentifier]
+  ): Future[Unit] = {
     val dependencySourcesParams = new DependencySourcesParams(targetIds)
 
     bspServer
@@ -1009,9 +996,9 @@ class TestClient(
   }
 
   private def fetchResources(
-                              bspServer: MockSession.BspMockServer,
-                              targetIds: java.util.List[BuildTargetIdentifier]
-                            ): Future[Unit] = {
+      bspServer: MockSession.BspMockServer,
+      targetIds: java.util.List[BuildTargetIdentifier]
+  ): Future[Unit] = {
     val resourcesParams = new ResourcesParams(targetIds)
 
     bspServer
@@ -1021,9 +1008,9 @@ class TestClient(
   }
 
   private def fetchJavacOptions(
-                                 bspServer: MockSession.BspMockServer,
-                                 targets: mutable.Buffer[BuildTarget]
-                               ): Future[Unit] = {
+      bspServer: MockSession.BspMockServer,
+      targets: mutable.Buffer[BuildTarget]
+  ): Future[Unit] = {
     val javaTargetIds = getTargetsIdsForLanguage(targets, "java")
     val javacOptionsParams = new JavacOptionsParams(javaTargetIds)
 
@@ -1034,9 +1021,9 @@ class TestClient(
   }
 
   private def fetchScalacOptions(
-                                  bspServer: MockSession.BspMockServer,
-                                  targets: mutable.Buffer[BuildTarget]
-                                ): Future[Unit] = {
+      bspServer: MockSession.BspMockServer,
+      targets: mutable.Buffer[BuildTarget]
+  ): Future[Unit] = {
     val scalaTargetIds = getTargetsIdsForLanguage(targets, "scala")
     val scalacOptionsParams = new ScalacOptionsParams(scalaTargetIds)
 
@@ -1047,9 +1034,9 @@ class TestClient(
   }
 
   private def getTargetsIdsForLanguage(
-                                        targets: mutable.Buffer[BuildTarget],
-                                        languageId: String
-                                      ): java.util.List[BuildTargetIdentifier] =
+      targets: mutable.Buffer[BuildTarget],
+      languageId: String
+  ): java.util.List[BuildTargetIdentifier] =
     targets
       .filter(_.getLanguageIds.contains(languageId))
       .map(_.getId)
@@ -1073,10 +1060,10 @@ class OutOfTimeException extends Throwable {
 object TestClient {
 
   def testInitialStructure(
-                            workspacePath: java.lang.String,
-                            customProperties: java.util.Map[String, String],
-                            timeoutDuration: java.time.Duration
-                          ): TestClient = {
+      workspacePath: java.lang.String,
+      customProperties: java.util.Map[String, String],
+      timeoutDuration: java.time.Duration
+  ): TestClient = {
     val workspace = new File(workspacePath)
     val (capabilities, connectionFiles) = MockCommunications.prepareSession(workspace)
     val failedConnections = connectionFiles.collect { case Failure(x) =>
@@ -1104,18 +1091,18 @@ object TestClient {
   }
 
   def testInitialStructure(
-                            workspacePath: java.lang.String,
-                            customProperties: java.util.Map[String, String]
-                          ): TestClient = testInitialStructure(workspacePath, customProperties, 30.seconds.toJava)
+      workspacePath: java.lang.String,
+      customProperties: java.util.Map[String, String]
+  ): TestClient = testInitialStructure(workspacePath, customProperties, 30.seconds.toJava)
 
   def apply(
-             serverBuilder: () => (OutputStream, InputStream, () => Unit),
-             initializeBuildParams: InitializeBuildParams
-           ): TestClient = new TestClient(serverBuilder, initializeBuildParams)
+      serverBuilder: () => (OutputStream, InputStream, () => Unit),
+      initializeBuildParams: InitializeBuildParams
+  ): TestClient = new TestClient(serverBuilder, initializeBuildParams)
 
   def apply(
-             serverBuilder: () => (OutputStream, InputStream, () => Unit),
-             initializeBuildParams: InitializeBuildParams,
-             timeoutDuration: java.time.Duration
-           ): TestClient = new TestClient(serverBuilder, initializeBuildParams, timeoutDuration.toScala)
+      serverBuilder: () => (OutputStream, InputStream, () => Unit),
+      initializeBuildParams: InitializeBuildParams,
+      timeoutDuration: java.time.Duration
+  ): TestClient = new TestClient(serverBuilder, initializeBuildParams, timeoutDuration.toScala)
 }

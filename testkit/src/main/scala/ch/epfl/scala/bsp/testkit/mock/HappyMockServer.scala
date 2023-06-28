@@ -214,24 +214,28 @@ class HappyMockServer(base: File) extends AbstractMockServer {
     }
   }
 
-  override def rustWorkspace(params: RustWorkspaceParams): CompletableFuture[RustWorkspaceResult] = {
+  override def rustWorkspace(
+      params: RustWorkspaceParams
+  ): CompletableFuture[RustWorkspaceResult] = {
     handleRequest {
       Right(
         new RustWorkspaceResult(
           List.empty.asJava,
           List.empty.asJava,
           List.empty.asJava,
-          List.empty.asJava,
+          List.empty.asJava
         )
       )
     }
   }
 
-  override def rustToolchain(params: RustToolchainParams): CompletableFuture[RustToolchainResult] = {
+  override def rustToolchain(
+      params: RustToolchainParams
+  ): CompletableFuture[RustToolchainResult] = {
     handleRequest {
       Right(
         new RustToolchainResult(
-          List.empty.asJava,
+          List.empty.asJava
         )
       )
     }
