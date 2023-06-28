@@ -806,18 +806,6 @@ trait Bsp4jGenerators {
     hash <- arbitrary[String]
   } yield new RustProcMacroArtifact(path, hash)
 
-  lazy val genRustDepMapper: Gen[RustDepMapper] = for {
-    source <- arbitrary[String]
-    target <- arbitrary[String]
-    name <- arbitrary[String]
-    dep_kinds <- genRustDepKindInfo.list
-  } yield new RustDepMapper(source, target, name, dep_kinds)
-
-  lazy val genRustRawMapper: Gen[RustRawMapper] = for {
-    packageId <- arbitrary[String]
-    rawId <- arbitrary[String]
-  } yield new RustRawMapper(packageId, rawId)
-
   lazy val genRustDepKindInfo: Gen[RustDepKindInfo] = for {
     kind <- arbitrary[String]
     target <- arbitrary[String]
@@ -833,7 +821,9 @@ trait Bsp4jGenerators {
     version <- arbitrary[String]
     origin <- arbitrary[String]
     edition <- arbitrary[String]
+    source <- arbitrary[String]
     targets <- genRustTarget.list
+    allTargets <- genRustTarget.list
     features <- genRustFeature.list
     enabledFeatures <- arbitrary[String].list
     cfgOptions <- genRustCfgOptions
@@ -845,7 +835,9 @@ trait Bsp4jGenerators {
     version,
     origin,
     edition,
+    source,
     targets,
+    allTargets,
     features,
     enabledFeatures,
     cfgOptions,
@@ -855,6 +847,7 @@ trait Bsp4jGenerators {
   )
 
   lazy val genRustRawDependency: Gen[RustRawDependency] = for {
+    packageId <- arbitrary[String]
     name <- arbitrary[String]
     rename <- arbitrary[String]
     kind <- arbitrary[String]
@@ -863,6 +856,7 @@ trait Bsp4jGenerators {
     uses_default_features <- arbitrary[Boolean]
     features <- arbitrary[String].list
   } yield new RustRawDependency(
+    packageId,
     name,
     rename,
     kind,
@@ -872,21 +866,34 @@ trait Bsp4jGenerators {
     features
   )
 
+  lazy val genRustDependency: Gen[RustDependency] = for {
+    source <- arbitrary[String]
+    target <- arbitrary[String]
+    name <- arbitrary[String]
+    depKinds <- genRustDepKindInfo.list
+  } yield new RustDependency(
+    source,
+    target,
+    name,
+    depKinds,
+  )
+
   lazy val genRustTarget: Gen[RustTarget] = for {
     name <- arbitrary[String]
     crateRootUrl <- arbitrary[String]
+    packageRooTUrl <- arbitrary[String]
     kind <- arbitrary[String]
     edition <- arbitrary[String]
     doctest <- arbitrary[Boolean]
     requiredFeatures <- arbitrary[String].list
-  } yield new RustTarget(name, crateRootUrl, kind, edition, doctest, requiredFeatures)
+  } yield new RustTarget(name, crateRootUrl, packageRooTUrl, kind, edition, doctest, requiredFeatures)
 
   lazy val genRustWorkspaceResult: Gen[RustWorkspaceResult] = for {
     packages <- genRustPackage.list
     rawDependencies <- genRustRawDependency.list
-    packageToRawMapper <- genRustRawMapper.list
-    packageToDepMapper <- genRustDepMapper.list
-  } yield new RustWorkspaceResult(packages, rawDependencies, packageToRawMapper, packageToDepMapper)
+    dependencies <- genRustDependency.list
+    resolvedTargets <- genBuildTargetIdentifier.list
+  } yield new RustWorkspaceResult(packages, rawDependencies, dependencies, resolvedTargets)
 
   implicit class GenExt[T](gen: Gen[T]) {
     def optional: Gen[Option[T]] = Gen.option(gen)
