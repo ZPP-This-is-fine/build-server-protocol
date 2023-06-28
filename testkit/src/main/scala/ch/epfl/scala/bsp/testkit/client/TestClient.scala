@@ -903,6 +903,35 @@ class TestClient(
   ): Unit =
     wrapTest(session => testRustWorkspace(params, expectedResult, session))
 
+  def testRustToolchain(
+      params: RustToolchainParams,
+      expectedResult: RustToolchainResult,
+      session: MockSession
+  ): Future[Unit] = {
+    session.connection.server
+      .rustToolchain(params)
+      .toScala
+      .map(result => {
+        val rustToolchains = result.getToolchains
+        val expectedToolchains = expectedResult.getToolchains
+
+        val testItems = rustToolchains.forall { item =>
+          expectedToolchains.contains(item)
+        }
+        assert(
+          testItems,
+          s"Rust Toolchain Items did not match!\n${val visitor = new ToMapPrintingVisitor(rustToolchains, expectedToolchains)
+            visitor.getMessagesAsString }"
+        )
+      })
+  }
+
+  def testRustToolchain(
+      params: RustToolchainParams,
+      expectedResult: RustToolchainResult
+  ): Unit =
+    wrapTest(session => testRustToolchain(params, expectedResult, session))
+
   def testPythonOptions(
       params: PythonOptionsParams,
       expectedResult: PythonOptionsResult,
