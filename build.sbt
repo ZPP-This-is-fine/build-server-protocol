@@ -31,11 +31,11 @@ lazy val V = new {
   val scala212 = "2.12.17"
   val scala213 = "2.13.10"
   val supportedScalaVersions = List(scala212, scala213)
-  val jsoniter = "2.22.2"
+  val jsoniter = "2.23.0"
   val java8Compat = "1.0.2"
   val lsp4j = "0.20.1"
   val scalacheck = "1.17.0"
-  val scalaCollectionCompat = "2.9.0"
+  val scalaCollectionCompat = "2.10.0"
   val osLib = "0.9.1"
   val decline = "2.4.1"
   val smithy = "1.28.1"
@@ -210,19 +210,9 @@ lazy val codegen = project
     )
   )
 
-lazy val `docs-gen` = project
-  .in(file("docs-gen"))
-  .settings(
-    crossVersion := CrossVersion.disabled,
-    autoScalaLibrary := false,
-    TaskKey[Unit]("codegen") := {
-      val _ = runDocsCodegen(Compile).value
-    }
-  )
-
 lazy val docs = project
-  .in(file("docs"))
-  .dependsOn(bsp4j, codegen, `docs-gen`)
+  .in(file("bsp-docs"))
+  .dependsOn(bsp4j, codegen)
   .settings(
     scalaVersion := V.scala213,
     publish / skip := true,
@@ -243,47 +233,6 @@ addCommandAlias(
   "checkScalaFormat",
   "scalafmtCheckAll ; scalafmtSbtCheck"
 )
-
-def runDocsCodegen(configuration: Configuration) = Def.task {
-  // for each smithy file in `spec/src/main/resources/META-INF.smithy/bsp/extensions`
-  // copy the `codegen/src/main/resources/template.md` file to the `docs-gen/docs/extensions` folder
-  // replacing the `{}` placeholder with the name of the file (without the `.smithy` extension)
-  // and replacing the `{C}` placeholder with the capitalized name of the file (with the `.smithy` extension)
-  // and rename it to `{}.md`
-  val specDir =
-    (spec / Compile / sourceDirectory).value / "resources" / "META-INF" / "smithy" / "bsp" / "extensions"
-  val docsGenDir = (ThisBuild / baseDirectory).value / "docs-gen"
-  IO.delete(docsGenDir)
-  val docsGenExtensionsDir = docsGenDir / "extensions"
-  val docsDir = (ThisBuild / baseDirectory).value / "docs"
-  val templateFile = (codegen / Compile / sourceDirectory).value / "resources" / "template.md"
-  val template = IO.read(templateFile)
-  val extensionFiles = IO.listFiles(specDir)
-  extensionFiles.foreach { file =>
-    val name = file.getName
-    val nameWithoutExtension = name.split('.').head
-    val nameCapitalized = nameWithoutExtension.capitalize
-    val content = template
-      .replace("{C}", nameCapitalized)
-      .replace("{}", nameWithoutExtension)
-    val replacedName = name.replace(".smithy", ".md")
-    val target = docsGenExtensionsDir / replacedName
-    IO.write(target, content)
-  }
-  val docsFiles = IO.listFiles(docsDir)
-  // copy each file and directory (other than target) in `docs` to `docs-gen` if it doesn't exist
-  docsFiles.foreach { file =>
-    val name = file.getName
-    val target = docsGenDir / name
-    if (!target.exists() && name != "target") {
-      if (file.isDirectory) {
-        IO.copyDirectory(file, target)
-      } else {
-        IO.copyFile(file, target)
-      }
-    }
-  }
-}
 
 def invokeXtendGeneration(configuration: Configuration) = Def.task {
   val injector = new XtendStandaloneSetup().createInjectorAndDoEMFRegistration
@@ -312,7 +261,7 @@ def runBsp4jCodegen(config: Configuration) = Def.task {
   val outputDir = ((config / sourceDirectory).value / "java").getAbsolutePath
   val codegenClasspath = (codegen / Compile / fullClasspath).value.map(_.data)
 
-  val mainClass = "bsp.codegen.Main"
+  val mainClass = "bsp.codegen.bsp4j.Main"
   val s = (config / streams).value
 
   import sjsonnew._

@@ -2,11 +2,12 @@ $version: "2"
 
 namespace bsp
 
+use jsonrpc#data
+use jsonrpc#dataKind
 use jsonrpc#enumKind
 use jsonrpc#jsonNotification
 use jsonrpc#jsonRPC
 use jsonrpc#jsonRequest
-use jsonrpc#data
 
 @jsonRPC
 service BuildClient {
@@ -185,8 +186,8 @@ intEnum StatusCode {
     CANCELLED = 3
 }
 
-/// A resource identifier that is a valid URI according
-/// to rfc3986: * https://tools.ietf.org/html/rfc3986
+/// A resource identifier that is a valid URI according to rfc3986:
+/// https://tools.ietf.org/html/rfc3986
 string URI
 
 list URIs {
@@ -281,7 +282,7 @@ operation OnBuildLogMessage {
 
 /// The Diagnostics notification are sent from the server to the client to signal results of validation runs.
 ///
-/// Diagnostic is defined as it is in the LSP
+/// Diagnostic is defined as it is in the LSP.
 ///
 /// When reset is true, the client must clean all previous diagnostics associated with the same textDocument and
 /// buildTarget and set instead the diagnostics in the request. This is the same behaviour as PublishDiagnosticsParams
@@ -504,11 +505,8 @@ operation BuildTargetCleanCache {
 }
 
 
-
-
 /// Represents the identifier of a BSP request.
 string RequestId
-
 
 
 list BuildTargetIdentifiers {
@@ -519,9 +517,10 @@ timestamp EventTime
 
 long DurationMillis
 
+@data
 document BuildTargetData
 
-
+@data
 document InitializeBuildParamsData
 
 structure InitializeBuildParams {
@@ -553,16 +552,15 @@ structure BuildClientCapabilities {
     languageIds: LanguageIds
 }
 
-@enumKind("open")
-enum LanguageId {
-    SCALA = "scala"
-    JAVA = "java"
-}
+/// Language IDs are defined here
+/// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocumentItem
+string LanguageId
 
 list LanguageIds {
     member: LanguageId
 }
 
+@data
 document InitializeBuildResultData
 
 structure InitializeBuildResult {
@@ -583,6 +581,8 @@ structure InitializeBuildResult {
 }
 
 /// The capabilities of the build server.
+/// Clients can use these capabilities to notify users what BSP endpoints can and
+/// cannot be used and why.
 structure BuildServerCapabilities {
     /// The languages the server supports compilation via method buildTarget/compile.
     compileProvider: CompileProvider
@@ -700,6 +700,7 @@ structure PublishDiagnosticsParams {
     reset: Boolean
 }
 
+@data
 document DiagnosticData
 
 structure Diagnostic {
@@ -725,7 +726,7 @@ structure Diagnostic {
     /// a scope collide all definitions can be marked via this property.
     relatedInformation: DiagnosticRelatedInformationList
     /// A data entry field that is preserved between a `textDocument/publishDiagnostics` notification
-    // and a `textDocument/codeAction` request.
+    /// and a `textDocument/codeAction` request.
     data: DiagnosticData
 }
 
@@ -831,6 +832,7 @@ structure DidChangeBuildTarget {
     changes: BuildTargetEvents
 }
 
+@data
 document BuildTargetEventData
 
 structure BuildTargetEvent {
@@ -970,6 +972,7 @@ list DependencyModulesItems {
     member: DependencyModulesItem
 }
 
+@data
 document DependencyModuleData
 
 structure DependencyModule {
@@ -1059,6 +1062,7 @@ intEnum OutputPathItemKind {
 ///
 /// There are predefined kinds of objects for compile and test tasks, as described
 /// in [[bsp#BuildTargetCompile]] and [[bsp#BuildTargetTest]]
+@data
 document TaskData
 
 structure TaskStartParams {
@@ -1140,6 +1144,7 @@ list Arguments {
     member: String
 }
 
+@data
 document CompileResultData
 
 structure CompileResult {
@@ -1160,7 +1165,7 @@ structure CompileResult {
 /// `build/taskStart` notification. When the compilation unit is a build target, the
 /// notification's `dataKind` field must be "compile-task" and the `data` field must
 /// include a `CompileTask` object:
-@data(kind: "compile-task", extends: TaskData)
+@dataKind(kind: "compile-task", extends: TaskData)
 structure CompileTask {
     @required
     target: BuildTargetIdentifier
@@ -1171,7 +1176,7 @@ structure CompileTask {
 /// `build/taskFinish` notification. When the compilation unit is a build target,
 /// the notification's `dataKind` field must be `compile-report` and the `data`
 /// field must include a `CompileReport` object:
-@data(kind: "compile-report", extends: TaskData)
+@dataKind(kind: "compile-report", extends: TaskData)
 structure CompileReport {
     /// The build target that was compiled.
     @required
@@ -1195,7 +1200,7 @@ structure CompileReport {
     noOp: Boolean
 }
 
-
+@data
 document TestParamsData
 
 structure TestParams {
@@ -1215,6 +1220,7 @@ structure TestParams {
     data: TestParamsData
 }
 
+@data
 document TestResultData
 
 structure TestResult {
@@ -1235,13 +1241,13 @@ structure TestResult {
 /// `build/taskStart` notification. When the testing unit is a build target, the
 /// notification's `dataKind` field must be `test-task` and the `data` field must
 /// include a `TestTask` object.
-@data(kind: "test-task", extends: TaskData)
+@dataKind(kind: "test-task", extends: TaskData)
 structure TestTask {
     @required
     target: BuildTargetIdentifier
 }
 
-@data(kind: "test-report", extends: TaskData)
+@dataKind(kind: "test-report", extends: TaskData)
 structure TestReport {
     originId: Identifier
     /// The build target that was compiled.
@@ -1272,7 +1278,7 @@ structure TestReport {
     time: DurationMillis
 }
 
-@data(kind: "test-start", extends: TaskData)
+@dataKind(kind: "test-start", extends: TaskData)
 structure TestStart {
     /// Name or description of the test.
     @required
@@ -1282,9 +1288,10 @@ structure TestStart {
     location: Location
 }
 
+@data
 document TestFinishData
 
-@data(kind: "test-finish", extends: TaskData)
+@dataKind(kind: "test-finish", extends: TaskData)
 structure TestFinish {
     /// Name or description of the test.
     @required
@@ -1319,6 +1326,7 @@ intEnum TestStatus {
     SKIPPED = 5
 }
 
+@data
 document RunParamsData
 
 structure RunParams {
@@ -1347,7 +1355,7 @@ structure RunResult {
     statusCode: StatusCode
 }
 
-
+@data
 document DebugSessionParamsData
 
 structure DebugSessionParams {

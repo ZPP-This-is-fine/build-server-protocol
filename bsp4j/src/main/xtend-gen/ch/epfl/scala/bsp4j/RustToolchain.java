@@ -7,7 +7,7 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 
 @SuppressWarnings("all")
 public class RustToolchain {
-  private RustStdLib stdLib;
+  private RustcInfo rustc;
 
   @NonNull
   private String cargoBinPath;
@@ -15,19 +15,19 @@ public class RustToolchain {
   @NonNull
   private String procMacroSrvPath;
 
-  public RustToolchain(final RustStdLib stdLib, @NonNull final String cargoBinPath, @NonNull final String procMacroSrvPath) {
-    this.stdLib = stdLib;
+  public RustToolchain(final RustcInfo rustc, @NonNull final String cargoBinPath, @NonNull final String procMacroSrvPath) {
+    this.rustc = rustc;
     this.cargoBinPath = cargoBinPath;
     this.procMacroSrvPath = procMacroSrvPath;
   }
 
   @Pure
-  public RustStdLib getStdLib() {
-    return this.stdLib;
+  public RustcInfo getRustc() {
+    return this.rustc;
   }
 
-  public void setStdLib(final RustStdLib stdLib) {
-    this.stdLib = stdLib;
+  public void setRustc(final RustcInfo rustc) {
+    this.rustc = rustc;
   }
 
   @Pure
@@ -54,7 +54,7 @@ public class RustToolchain {
   @Pure
   public String toString() {
     ToStringBuilder b = new ToStringBuilder(this);
-    b.add("stdLib", this.stdLib);
+    b.add("rustc", this.rustc);
     b.add("cargoBinPath", this.cargoBinPath);
     b.add("procMacroSrvPath", this.procMacroSrvPath);
     return b.toString();
@@ -70,10 +70,10 @@ public class RustToolchain {
     if (getClass() != obj.getClass())
       return false;
     RustToolchain other = (RustToolchain) obj;
-    if (this.stdLib == null) {
-      if (other.stdLib != null)
+    if (this.rustc == null) {
+      if (other.rustc != null)
         return false;
-    } else if (!this.stdLib.equals(other.stdLib))
+    } else if (!this.rustc.equals(other.rustc))
       return false;
     if (this.cargoBinPath == null) {
       if (other.cargoBinPath != null)
@@ -93,7 +93,7 @@ public class RustToolchain {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((this.stdLib== null) ? 0 : this.stdLib.hashCode());
+    result = prime * result + ((this.rustc== null) ? 0 : this.rustc.hashCode());
     result = prime * result + ((this.cargoBinPath== null) ? 0 : this.cargoBinPath.hashCode());
     return prime * result + ((this.procMacroSrvPath== null) ? 0 : this.procMacroSrvPath.hashCode());
   }

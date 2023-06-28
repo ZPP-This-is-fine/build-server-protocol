@@ -1221,6 +1221,45 @@ object ScalaTestSuiteSelection {
     JsonCodecMaker.makeWithRequiredCollectionFields
 }
 
+final case class ScalaDiagnostic(
+    actions: Option[List[ScalaAction]]
+)
+
+object ScalaDiagnostic {
+  implicit val codec: JsonValueCodec[ScalaDiagnostic] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class ScalaAction(
+    title: String,
+    description: Option[String],
+    edit: Option[ScalaWorkspaceEdit]
+)
+
+object ScalaAction {
+  implicit val codec: JsonValueCodec[ScalaAction] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class ScalaWorkspaceEdit(
+    changes: Option[List[ScalaTextEdit]]
+)
+
+object ScalaWorkspaceEdit {
+  implicit val codec: JsonValueCodec[ScalaWorkspaceEdit] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
+final case class ScalaTextEdit(
+    range: Range,
+    newText: String
+)
+
+object ScalaTextEdit {
+  implicit val codec: JsonValueCodec[ScalaTextEdit] =
+    JsonCodecMaker.makeWithRequiredCollectionFields
+}
+
 final case class SbtBuildTarget(
     sbtVersion: String,
     autoImports: List[String],
@@ -1505,7 +1544,8 @@ object RustWorkspaceParams {
 final case class RustWorkspaceResult(
     packages: List[RustPackage],
     rawDependencies: List[RustRawDependency],
-    dependencies: List[RustDependency]
+    dependencies: List[RustDependency],
+    targets: List[BuildTargetIdentifier]
 )
 
 object RustWorkspaceResult {
@@ -1513,14 +1553,15 @@ object RustWorkspaceResult {
     JsonCodecMaker.makeWithRequiredCollectionFields
 }
 
-final case class RustStdLib(
-    rustcSysroot: String,
-    rustcSrcSysroot: String,
-    rustcVersion: String
+final case class RustcInfo(
+    sysroot: String,
+    srcSysroot: String,
+    version: String,
+    host: String
 )
 
-object RustStdLib {
-  implicit val codec: JsonValueCodec[RustStdLib] =
+object RustcInfo {
+  implicit val codec: JsonValueCodec[RustcInfo] =
     JsonCodecMaker.makeWithRequiredCollectionFields
 }
 
@@ -1534,7 +1575,7 @@ object RustToolchainParams {
 }
 
 final case class RustToolchainResult(
-    stdLib: RustStdLib,
+    rustcInfo: RustcInfo,
     cargoBinPath: String,
     procMacroSrvPath: String
 )
