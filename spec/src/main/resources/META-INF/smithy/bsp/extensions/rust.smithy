@@ -177,18 +177,20 @@ list RustToolchainsItems {
 }
 
 structure RustToolchainsItem {
-    rustStdLib: RustStdLib
+    rustStdLib: RustcInfo
     @required
     cargoBinPath: String
     @required
     procMacroSrvPath: String
 }
 
-structure RustStdLib {
+structure RustcInfo {
     @required
-    rustcSysroot: String
+    sysroot: String
     @required
-    rustcSrcSysroot: String
+    srcSysroot: String
     @required
-    rustcVersion: String
+    version: String
+    @required
+    host: String
 }
