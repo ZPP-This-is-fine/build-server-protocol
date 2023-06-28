@@ -28,22 +28,25 @@ inThisBuild(
 )
 
 lazy val V = new {
-  val scala212 = "2.12.17"
-  val scala213 = "2.13.10"
+  val scala212 = "2.12.18"
+  val scala213 = "2.13.11"
   val supportedScalaVersions = List(scala212, scala213)
-  val jsoniter = "2.23.0"
+  val cats = "2.9.0"
+  val jsoniter = "2.23.2"
   val java8Compat = "1.0.2"
   val lsp4j = "0.20.1"
   val scalacheck = "1.17.0"
-  val scalaCollectionCompat = "2.10.0"
+  val scalaCollectionCompat = "2.11.0"
   val osLib = "0.9.1"
   val decline = "2.4.1"
-  val smithy = "1.28.1"
+  val smithy = "1.32.0"
   val diffutils = "1.3.0"
-  val scalatest = "3.2.10"
-  val ipcsocket = "1.0.0"
-  val scalacheck115 = "3.2.11.0"
+  val scalatest = "3.2.16"
+  val ipcsocket = "1.0.1"
+  val scalatestScalacheck = "3.2.14.0"
   val jsonrpc4s = "0.1.0"
+  val approvaltests = "18.6.0"
+  val junitInterface = "0.13.3"
 }
 
 import java.io.File
@@ -115,7 +118,7 @@ lazy val tests = project
       "org.scala-lang.modules" %% "scala-java8-compat" % V.java8Compat,
       "org.scala-sbt.ipcsocket" % "ipcsocket" % V.ipcsocket,
       "org.scalatest" %% "scalatest" % V.scalatest,
-      "org.scalatestplus" %% "scalacheck-1-15" % V.scalacheck115,
+      "org.scalatestplus" %% "scalacheck-1-16" % V.scalatestScalacheck,
       "org.scalacheck" %% "scalacheck" % V.scalacheck,
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % V.jsoniter
     )
@@ -169,6 +172,23 @@ lazy val `spec-traits` = project
     )
   )
 
+lazy val `bsp4s-gen` = project
+  .in(file("bsp4s-gen"))
+  .settings(
+    crossScalaVersions := V.supportedScalaVersions,
+    Test / publishArtifact := false,
+    Compile / doc / sources := Nil,
+    libraryDependencies ++= List(
+      "me.vican.jorge" %% "jsonrpc4s" % V.jsonrpc4s,
+      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % V.jsoniter
+    ),
+    TaskKey[Unit]("codegen") := {
+      val _ = runCodegen(Compile, "bsp.codegen.bsp4s.Main", "scala").value
+
+    }
+  )
+  .dependsOn(codegen)
+
 // A code-generated recreation of the bsp4j module
 lazy val `bsp4j-gen` = project
   .in(file("bsp4j-gen"))
@@ -183,7 +203,8 @@ lazy val `bsp4j-gen` = project
     },
     Compile / doc / javacOptions := List("-Xdoclint:none"),
     TaskKey[Unit]("codegen") := {
-      val _ = runBsp4jCodegen(Compile).value
+      val outputPath = (Compile / sourceDirectory).value / "java"
+      val _ = runCodegen(Compile, "bsp.codegen.bsp4j.Main", "java").value
     },
     TaskKey[Unit]("xtend") := {
       val _ = invokeXtendGeneration(Compile).value
@@ -194,6 +215,7 @@ lazy val `bsp4j-gen` = project
       "org.eclipse.lsp4j" % "org.eclipse.lsp4j.jsonrpc" % V.lsp4j
     )
   )
+  .dependsOn(codegen)
 
 // A codegen module that contains the logic for generating bsp4j
 // This will be invoked via shell-out using a bespoke sbt task
@@ -203,10 +225,14 @@ lazy val codegen = project
   .settings(
     publish := {},
     publishLocal := {},
+    crossScalaVersions := V.supportedScalaVersions,
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %% "scala-collection-compat" % V.scalaCollectionCompat,
       "com.lihaoyi" %% "os-lib" % V.osLib,
-      "com.monovore" %% "decline" % V.decline
+      "com.monovore" %% "decline" % V.decline,
+      "org.typelevel" %% "cats-core" % V.cats,
+      "com.approvaltests" % "approvaltests" % V.approvaltests % Test,
+      "com.github.sbt" % "junit-interface" % V.junitInterface % Test
     )
   )
 
@@ -250,19 +276,11 @@ def invokeXtendGeneration(configuration: Configuration) = Def.task {
   if (!compiler.compile())
     throw XtendError
 }
-
-// Bootstrapping task that wires the build to the
-// codegen module's main method
-def runBsp4jCodegen(config: Configuration) = Def.task {
-  import java.nio.file.Files
-  import java.util.stream.Collectors
-  import sys.process._
-
-  val outputDir = ((config / sourceDirectory).value / "java").getAbsolutePath
-  val codegenClasspath = (codegen / Compile / fullClasspath).value.map(_.data)
-
-  val mainClass = "bsp.codegen.bsp4j.Main"
-  val s = (config / streams).value
+def runCodegen(
+    config: Configuration,
+    mainClassName: String,
+    outputPath: String
+): Def.Initialize[Task[Seq[File]]] = Def.task {
 
   import sjsonnew._
   import BasicJsonProtocol._
@@ -270,6 +288,8 @@ def runBsp4jCodegen(config: Configuration) = Def.task {
   import sbt.HashFileInfo
   import sbt.io.Hash
   import scala.jdk.CollectionConverters._
+  import java.nio.file.Files
+  import java.util.stream.Collectors
 
   // Json codecs used by SBT's caching constructs
   // This serialises a path by providing a hash of the content it points to.
@@ -307,6 +327,11 @@ def runBsp4jCodegen(config: Configuration) = Def.task {
       )(BasicJsonProtocol.seqFormat(pathFormat))
   }
 
+  val codegenClasspath = (codegen / Compile / fullClasspath).value.map(_.data)
+  val outputDir = (config / sourceDirectory).value / outputPath
+
+  val s = (config / streams).value
+
   val cached =
     Tracked.inputChanged[CodegenInput, Seq[File]](
       s.cacheStoreFactory.make("input")
@@ -317,7 +342,7 @@ def runBsp4jCodegen(config: Configuration) = Def.task {
             s.cacheStoreFactory.make("output")
           ) { case ((changed, files), outputs) =>
             if (changed || outputs.isEmpty) {
-              val args = List("--output", outputDir)
+              val args = List("--output", outputDir.getAbsolutePath)
 
               val outputStream = new java.io.ByteArrayOutputStream()
 
@@ -331,7 +356,7 @@ def runBsp4jCodegen(config: Configuration) = Def.task {
                   CustomOutput(outputStream)
                 )
 
-              val exitCode = Fork.java(options, mainClass +: args)
+              val exitCode = Fork.java(options, mainClassName +: args)
 
               if (exitCode != 0) {
                 s.log.error(outputStream.toString())

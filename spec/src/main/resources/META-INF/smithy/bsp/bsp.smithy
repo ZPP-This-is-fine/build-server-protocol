@@ -9,6 +9,12 @@ use jsonrpc#jsonNotification
 use jsonrpc#jsonRPC
 use jsonrpc#jsonRequest
 
+/// An integer is a 32-bit signed integer ranging from -2^31 to (2^31)-1 (inclusive).
+integer Integer
+
+/// A long is a 64-bit signed integer ranging from -2^63 to (2^63)-1 (inclusive).
+long Long
+
 @jsonRPC
 service BuildClient {
     operations: [
@@ -119,7 +125,6 @@ enum BuildTargetTag {
     /// Actions on the target such as build and test should only be invoked manually
     /// and explicitly. For example, triggering a build on all targets in the workspace
     /// should by default not include this target.
-    ///
     /// The original motivation to add the "manual" tag comes from a similar functionality
     /// that exists in Bazel, where targets with this tag have to be specified explicitly
     /// on the command line.
@@ -513,10 +518,6 @@ list BuildTargetIdentifiers {
     member: BuildTargetIdentifier
 }
 
-timestamp EventTime
-
-long DurationMillis
-
 @data
 document BuildTargetData
 
@@ -819,7 +820,7 @@ list DiagnosticRelatedInformationList {
 structure WorkspaceBuildTargetsResult {
     /// The build targets in this workspace that
     /// contain sources with the given language ids.
-    // TODO: should be @required
+    @required
     targets: BuildTargets
 }
 
@@ -1071,7 +1072,7 @@ structure TaskStartParams {
     taskId: TaskId
 
     /// Timestamp of when the event started in milliseconds since Epoch.
-    eventTime: EventTime,
+    eventTime: Long,
 
     /// Message describing the task.
     message: String
@@ -1087,7 +1088,7 @@ structure TaskProgressParams {
     taskId: TaskId
 
     /// Timestamp of when the event started in milliseconds since Epoch.
-    eventTime: EventTime,
+    eventTime: Long,
 
     /// Message describing the task.
     message: String
@@ -1112,7 +1113,7 @@ structure TaskFinishParams {
     taskId: TaskId
 
     /// Timestamp of when the event started in milliseconds since Epoch.
-    eventTime: EventTime,
+    eventTime: Long,
 
     /// Message describing the task.
     message: String
@@ -1194,7 +1195,7 @@ structure CompileReport {
     warnings: Integer
 
     /// The total number of milliseconds it took to compile the target.
-    time: DurationMillis
+    time: Long
 
     /// The compilation was a noOp compilation.
     noOp: Boolean
@@ -1275,7 +1276,7 @@ structure TestReport {
     skipped: Integer
 
     /// The total number of milliseconds tests take to run (e.g. doesn't include compile times).
-    time: DurationMillis
+    time: Long
 }
 
 @dataKind(kind: "test-start", extends: TaskData)

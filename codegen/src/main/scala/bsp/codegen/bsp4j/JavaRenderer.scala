@@ -18,8 +18,8 @@ class JavaRenderer(basepkg: String) {
 
   def render(definition: Def): Option[CodegenFile] = {
     definition match {
-      case PrimitiveAlias(shapeId, tpe, _) => None
-      case Structure(shapeId, fields, _)   => Some(renderStructure(shapeId, fields))
+      case PrimitiveAlias(shapeId, tpe, _)  => None
+      case Structure(shapeId, fields, _, _) => Some(renderStructure(shapeId, fields))
       case ClosedEnum(shapeId, enumType, values, _) =>
         Some(renderClosedEnum(shapeId, enumType, values))
       case OpenEnum(shapeId, enumType, values, _) => Some(renderOpenEnum(shapeId, enumType, values))
@@ -129,9 +129,10 @@ class JavaRenderer(basepkg: String) {
   }
 
   def renderOperation(operation: Operation): Lines = {
-    val output = operation.outputType match {
-      case TPrimitive(Primitive.PUnit, _) => "void"
-      case other                          => s"CompletableFuture<${renderType(other)}>"
+    val output = (operation.jsonRPCMethodType, operation.outputType) match {
+      case (Notification, _)                         => "void"
+      case (Request, TPrimitive(Primitive.PUnit, _)) => s"CompletableFuture<Object>"
+      case (Request, other)                          => s"CompletableFuture<${renderType(other)}>"
     }
     val input = operation.inputType match {
       case TPrimitive(Primitive.PUnit, _) => ""
