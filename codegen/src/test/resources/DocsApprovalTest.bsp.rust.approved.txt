@@ -1,0 +1,213 @@
+## BSP Server remote interface
+
+### RustWorkspace: request
+
+
+- method: `buildTarget/rustWorkspace`
+- params: `RustWorkspaceParams`
+- result: `RustWorkspaceResult`
+
+#### RustWorkspaceParams
+
+
+```ts
+export interface RustWorkspaceParams {
+  targets: BuildTargetIdentifier[];
+}
+```
+
+#### RustWorkspaceResult
+
+
+```ts
+export interface RustWorkspaceResult {
+  packages: RustPackage[];
+
+  rawDependencies: Map<string, RustRawDependency>;
+
+  dependencies: Map<string, RustDependency>;
+}
+```
+
+#### RustPackage
+
+
+```ts
+export interface RustPackage {
+  id: string;
+
+  version?: string;
+
+  origin?: string;
+
+  edition?: string;
+
+  source?: string;
+
+  targets: RustTarget[];
+
+  allTargets: RustTarget[];
+
+  features: RustFeature[];
+
+  enabledFeatures: string[];
+
+  cfgOptions?: RustCfgOptions;
+
+  env: Map<string, string>;
+
+  outDirUrl?: string;
+
+  procMacroArtifact?: RustProcMacroArtifact;
+}
+```
+
+#### RustTarget
+
+
+```ts
+export interface RustTarget {
+  name: string;
+
+  crateRootUrl: string;
+
+  packageRootUrl: string;
+
+  kind: string;
+
+  edition?: string;
+
+  doctest?: boolean;
+
+  requiredFeatures?: string[];
+}
+```
+
+#### RustFeature
+
+
+```ts
+export interface RustFeature {
+  name: string;
+
+  deps?: string[];
+}
+```
+
+#### RustCfgOptions
+
+
+```ts
+export interface RustCfgOptions {
+  keyValueOptions?: Map<string, string[]>;
+
+  nameOptions?: string[];
+}
+```
+
+#### RustProcMacroArtifact
+
+
+```ts
+export interface RustProcMacroArtifact {
+  path?: string;
+}
+```
+
+#### RustRawDependency
+
+
+```ts
+export interface RustRawDependency {
+  name: string;
+
+  rename?: string;
+
+  kind?: string;
+
+  target?: string;
+
+  optional?: boolean;
+
+  uses_default_features?: boolean;
+
+  features: string[];
+}
+```
+
+#### RustDependency
+
+
+```ts
+export interface RustDependency {
+  target: string;
+
+  name?: string;
+
+  depKinds?: DepKind[];
+}
+```
+
+#### DepKind
+
+
+```ts
+export interface DepKind {
+  kind: string;
+
+  target?: string;
+}
+```
+
+### RustToolchain: request
+
+
+- method: `buildTarget/rustToolchain`
+- params: `RustToolchainParams`
+- result: `RustToolchainResult`
+
+#### RustToolchainParams
+
+
+```ts
+export interface RustToolchainParams {
+  targets: BuildTargetIdentifier[];
+}
+```
+
+#### RustToolchainResult
+
+
+```ts
+export interface RustToolchainResult {
+  items: RustToolchainsItem[];
+}
+```
+
+#### RustToolchainsItem
+
+
+```ts
+export interface RustToolchainsItem {
+  rustStdLib?: RustcInfo;
+
+  cargoBinPath: string;
+
+  procMacroSrvPath: string;
+}
+```
+
+#### RustcInfo
+
+
+```ts
+export interface RustcInfo {
+  sysroot: string;
+
+  srcSysroot: string;
+
+  version: string;
+
+  host: string;
+}
+```

@@ -178,15 +178,16 @@ class HappyMockSuite extends AnyFunSuite {
   }
 
   def assertRustWorkspace(server: MockBuildServer): Unit = {
-    val rustBuildServer = server.rustWorkspace().get
+    val rustWorkspaceParams = new RustWorkspaceParams(getBuildTargetIds(server))
+    val rustBuildServer = server.rustWorkspace(rustWorkspaceParams).get
     val packages = rustBuildServer.getPackages.asScala
     val rawDependencies = rustBuildServer.getRawDependencies.asScala
-    val packageToDepMapper = rustBuildServer.getPackageToDepMapper.asScala
-    val packageToRawMapper = rustBuildServer.getPackageToRawMapper.asScala
+    val dependencies = rustBuildServer.getDependencies.asScala
+    val resolvedTargets = rustBuildServer.getResolvedTargets.asScala
     assert(packages.isEmpty)
     assert(rawDependencies.isEmpty)
-    assert(packageToDepMapper.isEmpty)
-    assert(packageToRawMapper.isEmpty)
+    assert(dependencies.isEmpty)
+    assert(resolvedTargets.isEmpty)
   }
 
   def assertJvmTestEnvironment(server: MockBuildServer): Unit = {

@@ -1545,7 +1545,7 @@ final case class RustWorkspaceResult(
     packages: List[RustPackage],
     rawDependencies: List[RustRawDependency],
     dependencies: List[RustDependency],
-    targets: List[BuildTargetIdentifier]
+    resolvedTargets: List[BuildTargetIdentifier]
 )
 
 object RustWorkspaceResult {
